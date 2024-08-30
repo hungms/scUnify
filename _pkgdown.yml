@@ -1,0 +1,10 @@
+template:
+  bootstrap: 5
+  bootswatch: materia
+
+#url: https://mshung229.scunify/read-the-docs/
+
+navbar:
+  structure:
+    left:  [intro, reference, articles, tutorials, news]
+    right: [search, github, lightswitch]
