@@ -1,7 +1,7 @@
 url: https://mshung229.github.io/scUnify/
 template:
   bootstrap: 5
-  bootswatch: materia
+  bootswatch: flatly
 navbar:
   structure:
     left:

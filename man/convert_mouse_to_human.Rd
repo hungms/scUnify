@@ -9,15 +9,12 @@ convert_mouse_to_human(x, unique = T)
 \arguments{
 \item{x}{A vector of MGI gene symbols.}
 
-\item{unique}{Whether to disable one-to-many HGNC gene symbols to be returned. Defaults to {TRUE} to disable one-to-many mapping}
+\item{unique}{Whether to disable one-to-many HGNC gene symbols to be returned. Defaults to TRUE to disable one-to-many mapping}
 }
 \value{
-If {unique = T}; return a list of dataframe with "MGI.symbol", "HGNC.symbol" as mouse and corresponding human gene symbols. Otherwise return human gene symbols with one-to-one mapping only.
+If unique = TRUE, returns a vector of unique HGNC gene symbols that are mapped one-to-one.
+If unique = FALSE, returns a data frame with columns "MGI.symbol" and "HGNC.symbol" that are mapped one-to-many.
 }
 \description{
 Convert mouse (MGI) gene symbols to human (HGNC) gene symbols; disable one-to-many mapping
-}
-\examples{
-convert_mouse_to_human(c("Mki67", "Top2a", "Pcna"), unique = T)
-
 }

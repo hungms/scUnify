@@ -1,13 +1,6 @@
-# scUnify
-
-## Installation
-```
+# Installation
 
 
-```
-
-## Dependencies
-```
 ## Install CRAN packages
 options(timeout = 500)
 cran <- c(
@@ -25,10 +18,6 @@ BiocManager::install(bioc)
 ## Install Github packages
 git <- c("chris-mcginnis-ucsf/DoubletFinder", "mojaveazure/seurat-disk")
 devtools::install_github(git)
-```
 
 ## Optional Modules
-```
-## Optional Modules
 ### Under Development (as of 31 Aug 2024)
-```

@@ -4,10 +4,13 @@
 \alias{get_biomart}
 \title{get_biomart}
 \usage{
-get_biomart()
+get_biomart(host = "https://dec2021.archive.ensembl.org")
+}
+\arguments{
+\item{host}{URL to retrieve archived ensembl biomarts}
 }
 \value{
-A list containing human and mouse mart objects.
+set human and mouse biomart objects in local environment
 }
 \description{
 Initializes the Ensembl Mart for human and mouse gene symbols.
