@@ -19,14 +19,16 @@ run_scdblfinder(
 
 \item{assay}{assay name, defaults to "RNA"}
 
+\item{samples}{metadata column containing sample labels}
+
 \item{truth}{whether cell demultiplexing (ground-truth) result is available.
 Defaults to NULL, else set to metadata column with values of "Singlet" and "Doublet".}
+
+\item{clusters}{metadata column containing cluster labels}
 
 \item{dbr}{doublet rate}
 
 \item{ncores}{cores used for parallel processing, defaults to 1}
-
-\item{cluster}{metadata column containing cluster labels}
 }
 \description{
 predict doublets with scDblFinder

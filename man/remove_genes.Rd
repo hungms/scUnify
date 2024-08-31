@@ -11,7 +11,9 @@ remove_genes(x, features = NULL, orig.assay = "RNA", new.assay)
 
 \item{features}{a vector genes/features to remove}
 
-\item{orig.assay}{new assay name to store removed genes}
+\item{orig.assay}{current assay name, defaults to "RNA"}
+
+\item{new.assay}{new assay name to store removed genes}
 }
 \description{
 Remove genes from current assay to new assay

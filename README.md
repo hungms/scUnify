@@ -17,7 +17,7 @@ cran <- c(
 install.packages(cran)
 
 ## Install Bioconductor packages
-bioc <- c("biomaRt", "BiocParallel", "UCell", "celda", "scDblFinder")
+bioc <- c("biomaRt", "BiocParallel", "UCell", "celda", "scDblFinder", "ComplexHeatmap")
 if (!require("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
 BiocManager::install(bioc)

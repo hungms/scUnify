@@ -100,6 +100,7 @@ scUMAP <- function(x, reduction = "umap", group.by, cols = NULL, count = F, pt.s
 #' @param features feature names stored in a vector or in a named list
 #' @param assay assay name, defaults to "RNA"
 #' @param slot slot name, defaults to "data"
+#' @param scale if TRUE, scale gene expression across cells. Defaults to TRUE
 #' @param palette a vector of colors, defaults to "Reds" from RColorBrewer
 #' @param direction direction of palette, default to 1
 #' @param diffexp whether to plot significance, input can be either a dataframe or a csv file path of the Seurat::FindAllMarkers output. Defaults to NULL.
@@ -309,8 +310,7 @@ annotate_diffexp <- function(expdf, diffexp, split.by = NULL){
 #' Plot FeaturePlot from Seurat object
 #' @param x Seurat object
 #' @param features feature names stored in a vector
-#' @param assay assay name, defaults to "RNA"
-#' @param slot slot name, defaults to "data"
+#' @param ncol no. of columns for the plots
 #' @param plot If TRUE, plot with cowplot::plot_grid(). Defaults to FALSE to return a list of ggplot objects
 #' @param ... arguments for Seurat::FeaturePlot()
 #' @export

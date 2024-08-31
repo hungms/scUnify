@@ -32,6 +32,8 @@ scDotPlot(
 
 \item{slot}{slot name, defaults to "data"}
 
+\item{scale}{if TRUE, scale gene expression across cells. Defaults to TRUE}
+
 \item{palette}{a vector of colors, defaults to "Reds" from RColorBrewer}
 
 \item{direction}{direction of palette, default to 1}

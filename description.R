@@ -3,7 +3,7 @@ pkgs <- c(
     "grid", "gridExtra", "viridis", "wesanderson", "RColorBrewer", "qs", 
     "readxl", "writexl", "rstatix", "ggpubr", "Seurat", "harmony", 
     "biomaRt", "BiocParallel", "UCell", "celda", "scDblFinder",
-    "DoubletFinder", "SeuratDisk")
+    "DoubletFinder", "SeuratDisk", "ComplexHeatmap")
 
 for(x in pkgs){
     usethis::use_package(x)}

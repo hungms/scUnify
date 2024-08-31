@@ -9,7 +9,7 @@ run_doubletfinder(
   assay = "RNA",
   dims = 1:10,
   truth = NULL,
-  cluster,
+  clusters,
   dbr,
   ncores = 1
 )
@@ -24,7 +24,7 @@ run_doubletfinder(
 \item{truth}{whether cell demultiplexing (ground-truth) result is available.
 Defaults to NULL, else set to metadata column with values of "Singlet" and "Doublet".}
 
-\item{cluster}{metadata column containing cluster labels}
+\item{clusters}{metadata column containing cluster labels}
 
 \item{dbr}{doublet rate}
 

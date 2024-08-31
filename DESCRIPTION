@@ -15,10 +15,18 @@ biocViews:
     biomaRt,
     celda,
     UCell,
-    scDblFinder
+    scDblFinder,
+    ComplexHeatmap,
+Remotes:
+    chris-mcginnis-ucsf/DoubletFinder,
+    mojaveazure/seurat-disk
 Imports: 
     BiocParallel,
+    biomaRt,
+    celda,
+    ComplexHeatmap,
     cowplot,
+    DoubletFinder,
     dplyr,
     ggplot2,
     ggpubr,
@@ -32,10 +40,10 @@ Imports:
     readxl,
     rstatix,
     scales,
+    scDblFinder,
     Seurat,
+    SeuratDisk,
+    UCell,
     viridis,
     wesanderson,
     writexl
-Remotes:
-    chris-mcginnis-ucsf/DoubletFinder,
-    mojaveazure/seurat-disk

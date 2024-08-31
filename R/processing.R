@@ -4,7 +4,7 @@
 #' @param dir a vector of directories
 #' @param samples a vector of sample names for each directory
 #' @param adt Set to TRUE if ADT library is present. Defaults to FALSE
-#' @param hto_string prefix to identify HTO tag names if HTO library is present. Defaults to NULL
+#' @param hto_str prefix to identify HTO tag names if HTO library is present. Defaults to NULL
 #' @export
 create_seurat_object <- function(dir, samples, adt = F, hto_str = NULL){
     stopifnot(length(samples) == length(dir))
@@ -194,11 +194,11 @@ qc_report <- function(x, column, samples){
 #' @param dims no. of PCs, defaults to 1:10
 #' @param truth whether cell demultiplexing (ground-truth) result is available. 
 #'              Defaults to NULL, else set to metadata column with values of "Singlet" and "Doublet".
-#' @param cluster metadata column containing cluster labels
+#' @param clusters metadata column containing cluster labels
 #' @param dbr doublet rate
 #' @param ncores cores used for parallel processing, defaults to 1
 #' @export
-run_doubletfinder <- function(x, assay = "RNA", dims = 1:10, truth = NULL, cluster, dbr, ncores = 1){
+run_doubletfinder <- function(x, assay = "RNA", dims = 1:10, truth = NULL, clusters, dbr, ncores = 1){
 
     x@meta.data <- x@meta.data %>%
         mutate(cell_barcode = rownames(.))
@@ -232,7 +232,7 @@ run_doubletfinder <- function(x, assay = "RNA", dims = 1:10, truth = NULL, clust
     message(paste0("Value of top pK is ", top_pK))
 
     message("Step 2 : Estimate Doublets")
-    prop <- modelHomotypic(x@meta.data[[cluster]])
+    prop <- modelHomotypic(x@meta.data[[clusters]])
     nExp_poi <- round(dbr*nrow(x@meta.data))
     nExp_poi.adj <- round(nExp_poi*(1-prop))
     obj <- doubletFinder(obj, PCs = 1:10, pN = 0.25, pK = top_pK, nExp = nExp_poi, reuse.pANN = FALSE, sct = FALSE)
@@ -257,7 +257,8 @@ run_doubletfinder <- function(x, assay = "RNA", dims = 1:10, truth = NULL, clust
 #' @param assay assay name, defaults to "RNA"
 #' @param truth whether cell demultiplexing (ground-truth) result is available. 
 #'              Defaults to NULL, else set to metadata column with values of "Singlet" and "Doublet".
-#' @param cluster metadata column containing cluster labels
+#' @param samples metadata column containing sample labels
+#' @param clusters metadata column containing cluster labels
 #' @param dbr doublet rate
 #' @param ncores cores used for parallel processing, defaults to 1
 #' @export
@@ -313,7 +314,7 @@ calculate_cellcycle <- function(x, org = "human", remove_genes = F, orig.assay =
 #' @param x Seurat object
 #' @param features a vector genes/features to remove
 #' @param orig.assay current assay name, defaults to "RNA"
-#' @param orig.assay new assay name to store removed genes
+#' @param new.assay new assay name to store removed genes
 #' @export
 remove_genes <- function(x, features = NULL, orig.assay = "RNA", new.assay){
 

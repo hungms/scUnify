@@ -11,13 +11,11 @@ scFeaturePlot(x, features, ncol, plot = F, ...)
 
 \item{features}{feature names stored in a vector}
 
+\item{ncol}{no. of columns for the plots}
+
 \item{plot}{If TRUE, plot with cowplot::plot_grid(). Defaults to FALSE to return a list of ggplot objects}
 
 \item{...}{arguments for Seurat::FeaturePlot()}
-
-\item{assay}{assay name, defaults to "RNA"}
-
-\item{slot}{slot name, defaults to "data"}
 }
 \description{
 Plot FeaturePlot from Seurat object

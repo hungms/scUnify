@@ -13,7 +13,7 @@ create_seurat_object(dir, samples, adt = F, hto_str = NULL)
 
 \item{adt}{Set to TRUE if ADT library is present. Defaults to FALSE}
 
-\item{hto_string}{prefix to identify HTO tag names if HTO library is present. Defaults to NULL}
+\item{hto_str}{prefix to identify HTO tag names if HTO library is present. Defaults to NULL}
 }
 \description{
 Create Seurat object from cellranger-multi outputs
