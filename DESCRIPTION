@@ -11,12 +11,14 @@ RoxygenNote: 7.3.2
 URL: https://mshung229.github.io/scUnify/
 LazyData: true
 Depends: R (>= 4.0.0)
-Imports: 
+biocViews: 
     BiocParallel,
     biomaRt,
     celda,
+    UCell,
+    scDblFinder
+Imports: 
     cowplot,
-    DoubletFinder,
     dplyr,
     ggplot2,
     ggpubr,
@@ -30,10 +32,10 @@ Imports:
     readxl,
     rstatix,
     scales,
-    scDblFinder,
     Seurat,
-    SeuratDisk,
-    UCell,
     viridis,
     wesanderson,
     writexl
+Remotes:
+    chris-mcginnis-ucsf/DoubletFinder,
+    mojaveazure/seurat-disk

@@ -21,3 +21,10 @@ devtools::install_github(git)
 
 ## Optional Modules
 ### Under Development (as of 31 Aug 2024)
+
+
+## Boot
+# roxygen2::roxygenise()
+# pkgdown::build_site()
+# usethis::use_pkgdown_github_pages()
+# devtools::install()
