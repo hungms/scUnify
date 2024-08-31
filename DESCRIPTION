@@ -12,12 +12,12 @@ URL: https://mshung229.github.io/scUnify/
 LazyData: true
 Depends: R (>= 4.0.0)
 biocViews: 
-    BiocParallel,
     biomaRt,
     celda,
     UCell,
     scDblFinder
 Imports: 
+    BiocParallel,
     cowplot,
     dplyr,
     ggplot2,
