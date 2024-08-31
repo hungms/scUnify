@@ -1,0 +1,10 @@
+
+pkgs <- c(
+    "ggplot2", "dplyr", "ggrepel", "patchwork", "cowplot", "scales", 
+    "grid", "gridExtra", "viridis", "wesanderson", "RColorBrewer", "qs", 
+    "readxl", "writexl", "rstatix", "ggpubr", "Seurat", "harmony", 
+    "biomaRt", "BiocParallel", "UCell", "celda", "scDblFinder",
+    "DoubletFinder", "SeuratDisk")
+
+for(x in pkgs){
+    usethis::use_package(x)}

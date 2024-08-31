@@ -11,3 +11,29 @@ RoxygenNote: 7.3.2
 URL: https://mshung229.github.io/scUnify/
 LazyData: true
 Depends: R (>= 4.0.0)
+Imports: 
+    BiocParallel,
+    biomaRt,
+    celda,
+    cowplot,
+    DoubletFinder,
+    dplyr,
+    ggplot2,
+    ggpubr,
+    ggrepel,
+    grid,
+    gridExtra,
+    harmony,
+    patchwork,
+    qs,
+    RColorBrewer,
+    readxl,
+    rstatix,
+    scales,
+    scDblFinder,
+    Seurat,
+    SeuratDisk,
+    UCell,
+    viridis,
+    wesanderson,
+    writexl
