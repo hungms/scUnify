@@ -32,7 +32,7 @@ Imports:
     rstatix,
     scales,
     scDblFinder,
-    Seurat,
+    Seurat (>= 5.0.0),
     SeuratDisk,
     UCell,
     viridis,
