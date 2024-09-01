@@ -25,6 +25,7 @@ devtools::install_github(git)
 
 ## Boot
 # roxygen2::roxygenise()
+# devtools::document()
 # pkgdown::build_site()
 # usethis::use_pkgdown_github_pages()
 # devtools::install()
