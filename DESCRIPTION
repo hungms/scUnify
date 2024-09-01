@@ -11,15 +11,6 @@ RoxygenNote: 7.3.2
 URL: https://mshung229.github.io/scUnify/
 LazyData: true
 Depends: R (>= 4.0.0)
-biocViews: 
-    biomaRt,
-    celda,
-    UCell,
-    scDblFinder,
-    ComplexHeatmap,
-Remotes:
-    chris-mcginnis-ucsf/DoubletFinder,
-    mojaveazure/seurat-disk
 Imports: 
     BiocParallel,
     biomaRt,
@@ -47,3 +38,12 @@ Imports:
     viridis,
     wesanderson,
     writexl
+Remotes:
+    chris-mcginnis-ucsf/DoubletFinder,
+    mojaveazure/seurat-disk
+biocViews: 
+    biomaRt,
+    celda,
+    UCell,
+    scDblFinder,
+    ComplexHeatmap,
