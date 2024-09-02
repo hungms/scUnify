@@ -41,7 +41,7 @@ Imports:
     UCell
 Remotes:
     chris-mcginnis-ucsf/DoubletFinder,
-    git::git@gitlab.com:mojaveazure/seurat-disk
+    # git::git@gitlab.com:mojaveazure/seurat-disk
 biocViews: 
     biomaRt,
     celda,
