@@ -17,6 +17,7 @@ Imports:
     ComplexHeatmap,
     cowplot,
     dplyr,
+    ggh4x,
     ggplot2,
     ggpubr,
     ggrepel,
@@ -32,8 +33,7 @@ Imports:
     Seurat (>= 5.0.0),
     viridis,
     wesanderson,
-    writexl
-Suggests:
+    writexl, 
     celda,
     DoubletFinder,
     scDblFinder,
@@ -41,7 +41,7 @@ Suggests:
     UCell
 Remotes:
     chris-mcginnis-ucsf/DoubletFinder,
-    mojaveazure/seurat-disk
+    git::git@gitlab.com:mojaveazure/seurat-disk
 biocViews: 
     biomaRt,
     celda,

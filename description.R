@@ -1,7 +1,7 @@
 pkgs <- c(
     "ggplot2", "dplyr", "ggrepel", "patchwork", "cowplot", "scales", 
     "grid", "gridExtra", "viridis", "wesanderson", "RColorBrewer", "qs", 
-    "readxl", "writexl", "rstatix", "ggpubr", "Seurat", "harmony", 
+    "readxl", "writexl", "rstatix", "ggpubr", "Seurat", "harmony", "ggh4x", 
     "biomaRt", "BiocParallel", "UCell", "celda", "scDblFinder",
     "DoubletFinder", "SeuratDisk", "ComplexHeatmap")
 
