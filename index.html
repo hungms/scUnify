@@ -50,32 +50,27 @@
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>```{ruby}</p>
-<pre><code>
-## Dependencies
-```{ruby}
-## Install CRAN packages
-options(timeout = 500)
-cran &lt;- c(
-    "ggplot2", "dplyr", "ggrepel", "patchwork", "cowplot", "scales", "ggh4x",
-    "grid", "gridExtra", "viridis", "wesanderson", "RColorBrewer", "qs",
-    "readxl", "writexl", "rstatix", "ggpubr", "Seurat", "harmony")
-install.packages(cran)
-
-## Install Bioconductor packages
-bioc &lt;- c("biomaRt", "BiocParallel", "UCell", "celda", "scDblFinder", "ComplexHeatmap")
-if (!require("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
-BiocManager::install(bioc)
-
-## Install Github packages
-git &lt;- c("chris-mcginnis-ucsf/DoubletFinder", "mojaveazure/seurat-disk")
-devtools::install_github(git)</code></pre>
+<p><code>{r} remotes::install_github("mshung229/scUnify")</code></p>
 </div>
 <div class="section level2">
-<h2 id="optional-modules">Optional Modules<a class="anchor" aria-label="anchor" href="#optional-modules"></a>
+<h2 id="dependencies">Dependencies<a class="anchor" aria-label="anchor" href="#dependencies"></a>
 </h2>
-<p><code>{ruby} ## Optional Modules ### Under Development (as of 31 Aug 2024)</code></p>
+<p>```{r} ## Install CRAN packages options(timeout = 500) cran &lt;- c( “ggplot2”, “dplyr”, “ggrepel”, “patchwork”, “cowplot”, “scales”, “ggh4x”, “grid”, “gridExtra”, “viridis”, “wesanderson”, “RColorBrewer”, “qs”, “readxl”, “writexl”, “rstatix”, “ggpubr”, “Seurat”, “harmony”) install.packages(cran)</p>
+</div>
+<div class="section level2">
+<h2 id="install-bioconductor-packages">Install Bioconductor packages<a class="anchor" aria-label="anchor" href="#install-bioconductor-packages"></a>
+</h2>
+<p>bioc &lt;- c(“biomaRt”, “BiocParallel”, “UCell”, “celda”, “scDblFinder”, “ComplexHeatmap”) if (!require(“BiocManager”, quietly = TRUE)) install.packages(“BiocManager”) BiocManager::install(bioc)</p>
+</div>
+<div class="section level2">
+<h2 id="install-github-packages">Install Github packages<a class="anchor" aria-label="anchor" href="#install-github-packages"></a>
+</h2>
+<p>git &lt;- c(“chris-mcginnis-ucsf/DoubletFinder”, “mojaveazure/seurat-disk”) devtools::install_github(git)</p>
+<pre><code>
+## Optional Modules
+```{r}
+## Optional Modules
+### Under Development (as of 31 Aug 2024)</code></pre>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="license">
