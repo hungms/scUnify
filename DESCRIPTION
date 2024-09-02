@@ -14,10 +14,8 @@ Depends: R (>= 4.0.0)
 Imports: 
     BiocParallel,
     biomaRt,
-    celda,
     ComplexHeatmap,
     cowplot,
-    DoubletFinder,
     dplyr,
     ggplot2,
     ggpubr,
@@ -31,13 +29,16 @@ Imports:
     readxl,
     rstatix,
     scales,
-    scDblFinder,
     Seurat (>= 5.0.0),
-    SeuratDisk,
-    UCell,
     viridis,
     wesanderson,
     writexl
+Suggests:
+    celda,
+    DoubletFinder,
+    scDblFinder,
+    SeuratDisk,
+    UCell
 Remotes:
     chris-mcginnis-ucsf/DoubletFinder,
     mojaveazure/seurat-disk
@@ -46,4 +47,4 @@ biocViews:
     celda,
     UCell,
     scDblFinder,
-    ComplexHeatmap,
+    ComplexHeatmap
