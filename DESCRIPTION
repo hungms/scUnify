@@ -39,12 +39,10 @@ Imports:
     scDblFinder,
     SeuratDisk,
     UCell
-Remotes:
-    chris-mcginnis-ucsf/DoubletFinder,
-    # git::git@gitlab.com:mojaveazure/seurat-disk
+Remotes: chris-mcginnis-ucsf/DoubletFinder
 biocViews: 
     biomaRt,
     celda,
     UCell,
     scDblFinder,
-    ComplexHeatmap
+    ComplexHeatmap,
