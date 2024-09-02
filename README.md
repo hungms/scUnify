@@ -1,13 +1,12 @@
 # scUnify
 
 ## Installation
-```{ruby}
-
-
+```{r}
+remotes::install_github("mshung229/scUnify")
 ```
 
 ## Dependencies
-```{ruby}
+```{r}
 ## Install CRAN packages
 options(timeout = 500)
 cran <- c(
@@ -28,7 +27,7 @@ devtools::install_github(git)
 ```
 
 ## Optional Modules
-```{ruby}
+```{r}
 ## Optional Modules
 ### Under Development (as of 31 Aug 2024)
 ```
