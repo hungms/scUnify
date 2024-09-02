@@ -299,7 +299,7 @@ annotate_diffexp <- function(expdf, diffexp, split.by = NULL){
         #filter(Gene %in% unique(expdf$Gene)) %>%
         #filter(Group %in% unique(expdf$Group)) %>%
         merge(., diffexp, by = group_cols, all.x = T)  %>%
-        select(!c(gene, cluster))
+        dplyr::select(!c(gene, cluster))
     expdf[is.na(expdf)] <- "ns"
     
     return(expdf)

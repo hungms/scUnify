@@ -236,10 +236,10 @@ run_doubletfinder <- function(x, assay = "RNA", dims = 1:10, truth = NULL, clust
     nExp_poi <- round(dbr*nrow(x@meta.data))
     nExp_poi.adj <- round(nExp_poi*(1-prop))
     obj <- doubletFinder(obj, PCs = 1:10, pN = 0.25, pK = top_pK, nExp = nExp_poi, reuse.pANN = FALSE, sct = FALSE)
-    obj@meta.data %>% select(starts_with("pANN_0.25")) %>% colnames() -> pann
+    obj@meta.data %>% dplyr::select(starts_with("pANN_0.25")) %>% colnames() -> pann
     obj <- doubletFinder(obj, PCs = 1:10, pN = 0.25, pK = top_pK, nExp = nExp_poi.adj, reuse.pANN = pann, sct = FALSE)
     class <- obj@meta.data %>%
-        select(c("cell_barcode", tail(colnames(obj@meta.data),1)))
+        dplyr::select(c("cell_barcode", tail(colnames(obj@meta.data),1)))
     colnames(class)[2] <- "DoubletFinder"
 
     x@meta.data <- x@meta.data %>%
@@ -451,7 +451,7 @@ calculate_cluster_similarity <- function(x, cluster, assay = "RNA", slot = "data
     else{
 	selected.features <- rownames(x[[assay]])}
 
-    pseudobulk <- AverageExpression(x, assay = assay, features = selected.features, group.by = cluster, slot = slot)
+    pseudobulk <- AverageExpression(x, assays = assay, features = selected.features, group.by = cluster, slot = slot)
     pseudobulk <- pseudobulk[[assay]]
     correlation.matrix <- calculate_correlation(pseudobulk)
 
