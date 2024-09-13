@@ -47,6 +47,7 @@
   <main id="main" class="col-md-9"><div class="section level1">
 <div class="page-header"><h1 id="scunify">scUnify<a class="anchor" aria-label="anchor" href="#scunify"></a>
 </h1></div>
+<p>scUnify is an R package to simplify single-cell omic pipelines and provide customisable visualization functions for multi-omic datasets. Please refer to the <a href="https://mshung229.github.io/scUnify/">scUnify vignette</a> for example usage and explanations of each function and module. For comprehensive applications of the functions/modules in real single-cell data analysis please refer to the <a href="https://github.com/mshung229/scworkbook" class="external-link">SCWorkBook documentation</a> for more details.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
@@ -65,7 +66,7 @@
 <div class="section level2">
 <h2 id="install-github-packages">Install Github packages<a class="anchor" aria-label="anchor" href="#install-github-packages"></a>
 </h2>
-<p>git &lt;- c(“chris-mcginnis-ucsf/DoubletFinder”, “mojaveazure/seurat-disk”) devtools::install_github(git)</p>
+<p>git &lt;- c(“chris-mcginnis-ucsf/DoubletFinder”, “mojaveazure/seurat-disk”) if (!require(“devtools”, quietly = TRUE)) install.packages(“devtools”) devtools::install_github(git)</p>
 <pre><code>
 ## Optional Modules
 ```{r}
