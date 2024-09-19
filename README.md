@@ -1,13 +1,17 @@
 # scUnify
-scUnify is an R package to simplify single-cell omic pipelines and provide customisable visualization functions for multi-omic datasets. Please refer to the [scUnify vignette](https://mshung229.github.io/scUnify/) for example usage and explanations of each function and module. For comprehensive applications of the functions/modules in real single-cell data analysis please refer to the [SCWorkBook documentation](https://github.com/mshung229/scworkbook) for more details.
+scUnify is an R package to simplify single-cell omic pipelines and provide customisable visualization functions for multi-omic datasets. Please refer to the [scUnify vignette](https://mshung229.github.io/scUnify/) for example usage and explanations of each function and module.  
+  
+For comprehensive applications of the functions/modules in real single-cell data analysis please refer to the [SCWorkBook documentation](https://github.com/mshung229/scworkbook) for more details.
 
 ## Installation
-```{r}
+```ruby
+if (!require("devtools", quietly = TRUE))
+    install.packages("devtools")
 remotes::install_github("mshung229/scUnify")
 ```
 
 ## Dependencies
-```{r}
+```ruby
 ## Install CRAN packages
 options(timeout = 500)
 cran <- c(
@@ -30,7 +34,7 @@ devtools::install_github(git)
 ```
 
 ## Optional Modules
-```{r}
+```ruby
 ## Optional Modules
 ### Under Development (as of 31 Aug 2024)
 ```
