@@ -3,6 +3,7 @@
 # devtools::document()
 # pkgdown::build_site()
 # usethis::use_pkgdown_github_pages()
+# devtools::check()
 # devtools::install()
 
 
