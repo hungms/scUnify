@@ -37,7 +37,7 @@ Imports:
     DoubletFinder,
     scDblFinder,
     UCell
-Remotes: chris-mcginnis-ucsf/DoubletFinder, mojaveazure/seurat-disk
+Remotes: chris-mcginnis-ucsf/DoubletFinder
 biocViews: 
     biomaRt,
     celda,

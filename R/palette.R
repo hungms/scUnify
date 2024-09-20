@@ -48,9 +48,9 @@ brbg_11 <- c("#543005", "#8C510A", "#BF812D", "#DFC27D", "#F6E8C3", "#F5F5F5", "
 prgn_11 <- c("#40004B", "#762A83", "#9970AB", "#C2A5CF", "#E7D4E8", "#F7F7F7", "#D9F0D3", "#A6DBA0", "#5AAE61", "#1B7837", "#00441B")
 
 
-
-
-palette_list <- list(godsnot_102, zeileis_28, royal_4, asteroid_5, darjeeling_5, zissou_5, kelly_20, greenarmytage_25, brewerplus_41)
+palette_list <- mget(c(
+    "godsnot_102", "zeileis_28", "royal_4", "asteroid_5", 
+    "darjeeling_5", "zissou_5", "kelly_20", "greenarmytage_25", "brewerplus_41"))
 #' palette_list
 #'
 #' palette_list

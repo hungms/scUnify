@@ -15,7 +15,7 @@ remotes::install_github("mshung229/scUnify", dependencies=FALSE)
 ## Install CRAN packages
 options(timeout = 500)
 cran <- c(
-    "ggplot2", "dplyr", "ggrepel", "patchwork", "cowplot", "scales", "ggh4x",
+    "tidyverse", "ggrepel", "patchwork", "cowplot", "scales", "ggh4x",
     "grid", "gridExtra", "viridis", "wesanderson", "RColorBrewer", "qs", 
     "readxl", "writexl", "rstatix", "ggpubr", "Seurat", "harmony")
 install.packages(cran)
