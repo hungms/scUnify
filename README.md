@@ -7,7 +7,7 @@ For comprehensive applications of the functions/modules in real single-cell data
 ```ruby
 if (!require("devtools", quietly = TRUE))
     install.packages("devtools")
-remotes::install_github("mshung229/scUnify")
+remotes::install_github("mshung229/scUnify", dependencies=FALSE)
 ```
 
 ## Dependencies

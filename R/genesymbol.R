@@ -1,3 +1,17 @@
+bcr.string <- "^I[Gg][HKLhkl][VDJCAEMGvdjcaemg]|^AC233755"
+#' BCR string
+#'
+#' BCR string
+#' @export
+"bcr.string"
+
+tcr.string <- "^T[Rr][ABCDGabcdg][VDJCvdjc]"
+#' TCR string
+#'
+#' TCR string
+#' @export
+"tcr.string"
+
 #' get_biomart
 #'
 #' Initializes the Ensembl Mart for human and mouse gene symbols.
