@@ -5,7 +5,7 @@
     "grid", "gridExtra", "viridis", "wesanderson", "RColorBrewer", "qs", 
     "readxl", "writexl", "rstatix", "ggpubr", "Seurat", "harmony", "ggh4x", 
     "biomaRt", "BiocParallel", "UCell", "celda", "scDblFinder",
-    "DoubletFinder", "SeuratDisk", "ComplexHeatmap")
+    "DoubletFinder", "ComplexHeatmap")
   invisible(lapply(packages, library, character.only = TRUE))
 
   ### start up settings
