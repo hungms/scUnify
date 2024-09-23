@@ -2,6 +2,7 @@
 <url><loc>https://mshung229.github.io/scUnify/404.html</loc></url>
 <url><loc>https://mshung229.github.io/scUnify/authors.html</loc></url>
 <url><loc>https://mshung229.github.io/scUnify/index.html</loc></url>
+<url><loc>https://mshung229.github.io/scUnify/reference/bcr.string.html</loc></url>
 <url><loc>https://mshung229.github.io/scUnify/reference/calculate_cellcycle.html</loc></url>
 <url><loc>https://mshung229.github.io/scUnify/reference/calculate_cluster_similarity.html</loc></url>
 <url><loc>https://mshung229.github.io/scUnify/reference/calculate_correlation.html</loc></url>
@@ -15,6 +16,7 @@
 <url><loc>https://mshung229.github.io/scUnify/reference/facet_aes.html</loc></url>
 <url><loc>https://mshung229.github.io/scUnify/reference/get_biomart.html</loc></url>
 <url><loc>https://mshung229.github.io/scUnify/reference/index.html</loc></url>
+<url><loc>https://mshung229.github.io/scUnify/reference/palette_list.html</loc></url>
 <url><loc>https://mshung229.github.io/scUnify/reference/plot_similarity_heatmap.html</loc></url>
 <url><loc>https://mshung229.github.io/scUnify/reference/process_hto.html</loc></url>
 <url><loc>https://mshung229.github.io/scUnify/reference/process_seurat.html</loc></url>
@@ -34,6 +36,7 @@
 <url><loc>https://mshung229.github.io/scUnify/reference/scUnify-package.html</loc></url>
 <url><loc>https://mshung229.github.io/scUnify/reference/select_top_deg.html</loc></url>
 <url><loc>https://mshung229.github.io/scUnify/reference/set_assay_keys.html</loc></url>
+<url><loc>https://mshung229.github.io/scUnify/reference/tcr.string.html</loc></url>
 <url><loc>https://mshung229.github.io/scUnify/reference/theme_border.html</loc></url>
 <url><loc>https://mshung229.github.io/scUnify/reference/theme_line.html</loc></url>
 <url><loc>https://mshung229.github.io/scUnify/reference/umap_aes.html</loc></url>
