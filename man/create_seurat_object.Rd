@@ -4,14 +4,12 @@
 \alias{create_seurat_object}
 \title{create_seurat_object}
 \usage{
-create_seurat_object(dir, samples, adt = F, hto_str = NULL)
+create_seurat_object(dir, samples, hto_str = NULL)
 }
 \arguments{
 \item{dir}{a vector of directories}
 
 \item{samples}{a vector of sample names for each directory}
-
-\item{adt}{Set to TRUE if ADT library is present. Defaults to FALSE}
 
 \item{hto_str}{prefix to identify HTO tag names if HTO library is present. Defaults to NULL}
 }

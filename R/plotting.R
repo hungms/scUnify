@@ -80,13 +80,12 @@ scUMAP <- function(x, reduction = "umap", group.by, cols = NULL, count = F, pt.s
         plotlist[[i]] <- plotlist[[i]] +
             scale_color_discrete(labels = count.labels) +
             guides(color = guide_legend(title = "", title.position = "top", ncol = legend.ncol, override.aes = list(size=3))) +
-	    ggtitle("") +
+	        ggtitle("") +
             umap_aes()}
 
     if(length(plotlist) == 1){
         plotlist <- plotlist[[1]]
         if(length(cols) > 0){
-            cols <- cols[1:length(unique(x@meta.data[[group.by]]))]
             plotlist <- plotlist + scale_color_manual(values = cols, labels = count.labels)}}
 
     return(plotlist)}

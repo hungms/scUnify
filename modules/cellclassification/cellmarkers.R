@@ -12,6 +12,16 @@ immune.mm <- list(
     Monocytes = c("Lyz2", "Itgam", "Cd14"),
     Cycling = c("Mki67", "Pcna", "Top2a"))
 
+immune.hs <- list(
+    Immune = c("PTPRC"),
+    `T-cell` =  c("CD3D", "CD4", "CD8A", "CD8B"),
+    NK = c("NKG7", "GNLY"),
+    `B-cell` = c("CD19", "CD79A", "CD79B", "MS4A1"),
+    Plasma = c("JCHAIN", "SDC1", "IRF4", "PRDM1"),
+    Dendritic = c("CST3", "ITGAX"),
+    Monocytes = c("LYZ2", "ITGAM", "CD14"),
+    Cycling = c("MKI67", "PCNA", "TOP2A"))
+
 ## T Cells
 
 ## B Cells
@@ -24,6 +34,16 @@ b.mm <- list(
     "GC-DZ" = c("Bcl6", "Aicda", "Mef2b"),
     "Cycling" = c("Mki67", "Pcna", "Top2a"),
     "Plasma-cells" = c("Jchain", "Irf4", "Prdm1", "Sdc1"))
+
+b.hs <- list(
+    "B-cells" = c("CD19", "CD79A", "MS4A1"),
+    "Activated" = c("FOS", "CD69", "DUSP2"),
+    "Naive" = c("CCR7", "SELL", "TXNIP", "BANK1"),
+    "Memory" = c("KLF2", "CD38", "HHEX", "GPR183", "CCR6"),
+    "GC-LZ" = c("FCER2A", "CD40", "IL4I1", "MYC"),
+    "GC-DZ" = c("BCL6", "AICDA", "MEF2B"),
+    "Cycling" = c("MKI67", "PCNA", "TOP2A"),
+    "Plasma-cells" = c("JCHAIN", "SDC1", "IRF4", "PRDM1"))
 
 b.complete.mm <- list(
     "B-cells" = c("Cd19", "Cd79a", "Ms4a1", "Cd79b"),

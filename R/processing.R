@@ -3,10 +3,9 @@
 #' Create Seurat object from cellranger-multi outputs
 #' @param dir a vector of directories
 #' @param samples a vector of sample names for each directory
-#' @param adt Set to TRUE if ADT library is present. Defaults to FALSE
 #' @param hto_str prefix to identify HTO tag names if HTO library is present. Defaults to NULL
 #' @export
-create_seurat_object <- function(dir, samples, adt = F, hto_str = NULL){
+create_seurat_object <- function(dir, samples, hto_str = NULL){
     stopifnot(length(samples) == length(dir))
 
     x <- list()
@@ -16,26 +15,35 @@ create_seurat_object <- function(dir, samples, adt = F, hto_str = NULL){
         message(paste0(samples[i], " --- Loading Sample ", i))
         message("Step 1 : Adding RNA counts")
         mtx <- Read10X(dir[i])
-        if(adt == T | hto == T){
-             rna <- mtx$`Gene Expression`}
-        else{
-             rna <- mtx}
 
-       	# import gene expression/adt to seurat, remove cells with less than 200 features and features expressed in less than 3 cells
-        seu_obj <- suppressWarnings(CreateSeuratObject(as.matrix(rna), assay="RNA", min.cells = 3, min.features = 200))
+        # add rna counts
+        message("Step 2 : Adding RNA counts")
+        any.adt <- "Antibody Capture" %in% names(mtx)
+        if(any.adt){rna <- mtx$`Gene Expression`}
+        else{rna <- mtx}
+        seu_obj <- suppressWarnings(CreateSeuratObject(as.matrix(rna), assay="RNA", min.cells = 3, min.features = 200)) # import gene expression/adt to seurat, remove cells with less than 200 features and features expressed in less than 3 cells
+
+        # check for modalities
+        message("Step 3 : Check for Modalities")
+        if(any.adt){
+            any.hto <- any(str_detect(rownames(mtx$`Antibody Capture`), hto_str))
+            any.adt <- any(!(str_detect(rownames(mtx$`Antibody Capture`), hto_str)))}
+        else{
+            any.hto <- F}
+        adt.skip <- ifelse(any.adt, "", "--- SKIPPED")
+        hto.skip <- ifelse(any.hto, "", " --- SKIPPED")
 
        	# add hto counts
-        if(length(hto_str) > 0){
-            message("Step 2 : Adding HTO counts")
-            if(any(str_detect(rownames(mtx$`Antibody Capture`), hto_str))){
-                hash <- mtx$`Antibody Capture`[c(which(str_detect(rownames(mtx$`Antibody Capture`), hto_str))),]
-                seu_obj[["HTO"]] <- CreateAssay5Object(as.matrix(hash[,colnames(seu_obj[["RNA"]]$counts)]), min.cells = 0, min.features = 0)}}
+        message(paste0("Step 4 : Adding HTO counts", hto.skip))
+        if(any.hto){
+            hash <- mtx$`Antibody Capture`[c(which(str_detect(rownames(mtx$`Antibody Capture`), hto_str))),]
+            seu_obj[["HTO"]] <- CreateAssay5Object(as.matrix(hash[,colnames(seu_obj[["RNA"]]$counts)]), min.cells = 0, min.features = 0)}
 
        	# add adt counts
-        if(adt){
-            message("Step 3 : Adding ADT counts")
+        message(paste0("Step 5 : Adding ADT counts", adt.skip))
+        if(any.adt){
             prot <- mtx$`Antibody Capture`
-            if(length(hto_str) > 0){
+            if(any.hto){
                 prot <- prot[-c(which(str_detect(rownames(prot), hto_str))),]}
             seu_obj[["ADT"]] <- CreateAssay5Object(as.matrix(prot[,colnames(seu_obj[["RNA"]]$counts)]), min.cells = 0, min.features = 0)}
 
