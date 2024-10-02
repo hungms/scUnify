@@ -306,8 +306,8 @@ calculate_cellcycle <- function(x, org = "human", remove_genes = F, orig.assay =
     sgenes <- cc.genes$s.genes
     g2mgenes <- cc.genes$g2m.genes
     if(org == "mouse"){
-        sgenes <- convert_human_to_mouse(cc.genes$s.genes)
-        g2mgenes <- convert_human_to_mouse(cc.genes$g2m.genes)}
+        sgenes <- convert_human_to_mouse(cc.genes$s.genes, unique = T)
+        g2mgenes <- convert_human_to_mouse(cc.genes$g2m.genes, unique = T)}
     
     x <- CellCycleScoring(x, s.features = sgenes, g2m.features = g2mgenes, set.ident = F, assay = orig.assay)
     

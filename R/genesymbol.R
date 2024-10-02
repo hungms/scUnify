@@ -36,10 +36,9 @@ convert_mouse_to_human <- function(x, unique = T){
    if(!all(c("mouse_biomart", "human_biomart") %in% ls())){
       get_biomart()}
    genesV2 = getLDS(attributes = c("mgi_symbol"), filters = "mgi_symbol", values = x , mart = mouse_biomart, attributesL = c("hgnc_symbol"), martL = human_biomart, uniqueRows=T)
+   humanx <- as.data.frame(genesV2[,c(2,1)]) %>% distinct(HGNC.symbol, .keep_all = T)
    if(unique){ # disable one to many
-      humanx <- genesV2[,2][-c(which(duplicated(genesV2[,2])))]}
-   else{ # enable one to many
-      humanx <- as.data.frame(genesV2[,c(2,1)]) %>% distinct(HGNC.symbol, .keep_all = T)}
+      humanx <- unique(mousex$HGNC.symbol)}
    return(humanx)}
 
 #' convert_human_to_mouse
@@ -55,10 +54,9 @@ convert_human_to_mouse <- function(x, unique = T){
    if(!all(c("mouse_biomart", "human_biomart") %in% ls(pattern = "_biomart"))){
       get_biomart()}
    genesV2 <- getLDS(attributes = c("hgnc_symbol"), filters = "hgnc_symbol", values = x , mart = human_biomart, attributesL = c("mgi_symbol"), martL = mouse_biomart, uniqueRows=T)
+   mousex <- as.data.frame(genesV2[,c(2,1)]) %>% distinct(MGI.symbol, .keep_all = T)
    if(unique){ # disable one to many
-      mousex <- genesV2[,2][-c(which(duplicated(genesV2[,2])))]}
-   else{ # enable one to many
-      mousex <- as.data.frame(genesV2[,c(2,1)]) %>% distinct(MGI.symbol, .keep_all = T)}
+      mousex <- unique(mousex$MGI.symbol)}
    return(mousex)}
 
 
