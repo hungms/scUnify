@@ -16,3 +16,16 @@ convert_genedict <- function(genelist, to = "human"){
                 gs[[l]] <- convert_human_to_mouse(genelist[[l]])}}}
     names(gs) <- names(genelist)
     return(gs)}
+
+#' UCell
+#'
+#' @export
+UCell <- function(x, assay = "RNA"){
+    dir = "/camp/home/hungm/scratch/hungm/reference/cell_signatures/LZDZ_signatures/"
+    signature_list <- list.files(dir)
+    gc_signatures <- list()
+    for(x in seq_along(signature_list)){
+        gc_signatures[[x]] <- read.csv(paste0(dir, signature_list[x]), sep = ",", header = F)[[1]]}
+    names(gc_signatures) <- gsub(".txt", "", signature_list)
+    DefaultAssay(query.mapped.hq) <- assay
+    x <- AddModuleScore_UCell(x, features=gc_signatures)}

@@ -4,12 +4,16 @@
 \alias{qc_before_recluster}
 \title{qc_before_recluster}
 \usage{
-qc_before_recluster(x, assay = "RNA")
+qc_before_recluster(x, assay = "RNA", min.features = 200, min.cells = 3)
 }
 \arguments{
 \item{x}{Seurat object}
 
 \item{assay}{assay name of gene expression. Defaults to "RNA"}
+
+\item{min.features}{minimum genes expressed by each cell. Defaults to 200.}
+
+\item{min.cells}{minimum cells expressing each gene. Defaults to 3.}
 }
 \description{
 Subset cells under < 200 features after QC

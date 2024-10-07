@@ -38,7 +38,7 @@ convert_mouse_to_human <- function(x, unique = T){
    genesV2 = getLDS(attributes = c("mgi_symbol"), filters = "mgi_symbol", values = x , mart = mouse_biomart, attributesL = c("hgnc_symbol"), martL = human_biomart, uniqueRows=T)
    humanx <- as.data.frame(genesV2[,c(2,1)]) %>% distinct(HGNC.symbol, .keep_all = T)
    if(unique){ # disable one to many
-      humanx <- unique(mousex$HGNC.symbol)}
+      humanx <- unique(humanx$HGNC.symbol)}
    return(humanx)}
 
 #' convert_human_to_mouse

@@ -4,10 +4,10 @@
 \alias{select_top_deg}
 \title{select_top_deg}
 \usage{
-select_top_deg(df, n = 5, rank_by = "avg_log2FC", only.pos = F)
+select_top_deg(markers, n = 5, rank_by = "avg_log2FC", only.pos = F)
 }
 \arguments{
-\item{df}{a dataframe of Seurat::FindAllMarkers output}
+\item{markers}{a dataframe of Seurat::FindAllMarkers output}
 
 \item{n}{no. of genes per cluster}
 

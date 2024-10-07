@@ -45,7 +45,10 @@ create_seurat_object <- function(dir, samples, hto_str = NULL){
             prot <- mtx$`Antibody Capture`
             if(any.hto){
                 prot <- prot[-c(which(str_detect(rownames(prot), hto_str))),]}
-            seu_obj[["ADT"]] <- CreateAssay5Object(as.matrix(prot[,colnames(seu_obj[["RNA"]]$counts)]), min.cells = 0, min.features = 0)}
+            seu_obj[["ADT"]] <- CreateAssay5Object(as.matrix(prot[,colnames(seu_obj[["RNA"]]$counts)]), min.cells = 0, min.features = 0)
+
+            
+            }
 
        	# add sample id in metadata
         message("Final Step : Creating Seurat Object")
@@ -412,15 +415,40 @@ process_seurat <- function(x, assay = "RNA", dims = 1:10, res = 0.4, reduction =
         print(scUMAP(x, reduction = "umap", group.by = group.by.vars, cols = kelly))}
     return(x)}
 
+#' integrate_v4
+#'
+#' Wrapper function to integrate cells by samples
+#' @param x Seurat object
+#' @param split.by variable to split object by
+#' @param assay assay name of gene expression. Defaults to "RNA"
+#' @param nfeatures no. of features to select for integration
+#' @param method integration method, see Seurat::indIntegrationAnchors()
+#' @param k.filter k.filtered, see Seurat::indIntegrationAnchors(), reduce when no. of cells in samples are low.
+#' @export
+integrate_v4 <- function(x, split.by, assay = "RNA", nfeatures = 3000, method = "rpca", k.filter = 200){
+    list <- SplitObject(x, split.by = split.by)
+    for(i in seq_along(list)){
+        list[[i]] <- SCTransform(list[[i]], vst.flavor = "v2", variable.features.n = nfeatures, assay = assay, return.only.var.genes = FALSE)
+        list[[i]] <- RunPCA(list[[i]], npcs = 50, verbose = FALSE, assay = "SCT")}
+    features <- SelectIntegrationFeatures(list, nfeatures = nfeatures)
+    list <- PrepSCTIntegration(object.list = list, anchor.features = features)
+    anchors <- FindIntegrationAnchors(object.list = list, normalization.method = "SCT", anchor.features = features, reduction = method, k.filter = k.filter)
+    integrated <- IntegrateData(anchorset = anchors, normalization.method = "SCT", features.to.integrate = rownames(x[[assay]]))
+    VariableFeatures(integrated[["SCT"]]) <- features
+    VariableFeatures(integrated[["integrated"]]) <- features
+    return(integrated)}
+
 
 #' qc_before_recluster
 #'
 #' Subset cells under < 200 features after QC
 #' @param x Seurat object
 #' @param assay assay name of gene expression. Defaults to "RNA"
+#' @param min.features minimum genes expressed by each cell. Defaults to 200.
+#' @param min.cells minimum cells expressing each gene. Defaults to 3.
 #' @export
-qc_before_recluster <- function(x, assay = "RNA"){
-    x[[assay]] <- CreateAssay5Object(counts = x[[assay]]$counts, data = x[[assay]]$data, min.features = 200, min.cells = 3)
+qc_before_recluster <- function(x, assay = "RNA", min.features = 200, min.cells = 3){
+    x[[assay]] <- CreateAssay5Object(counts = x[[assay]]$counts, data = x[[assay]]$data, min.features = min.features, min.cells = min.cells)
     x <- subset(x, cells = colnames(x[[assay]]$counts))
     return(x)}
 
@@ -504,12 +532,12 @@ plot_similarity_heatmap <- function(correlation.matrix, annotations = colnames(c
 #' select_top_deg
 #'
 #' Find top differentially expressed genes for each cluster from Seurat::FindAllMarkers output.
-#' @param df a dataframe of Seurat::FindAllMarkers output
+#' @param markers a dataframe of Seurat::FindAllMarkers output
 #' @param n no. of genes per cluster
 #' @param rank_by variables to rank by, either "avg_log2FC", "p_val_adj", "diff_pct"
 #' @param only.pos if TRUE, return only genes with positive avg_log2FC. Defaults to FALSE
 #' @export
-select_top_deg <- function(df, n = 5, rank_by = "avg_log2FC", only.pos = F){
+select_top_deg <- function(markers, n = 5, rank_by = "avg_log2FC", only.pos = F){
 
     if(!rank_by %in% c("avg_log2FC", "p_val_adj", "diff_pct")){
         stop('please make sure rank_by is either "avg_log2FC", "p_val_adj", "diff_pct"')}
@@ -557,6 +585,32 @@ set_assay_keys <- function(x){
     for(assay in names(x@assays)){
         x[[assay]]@key <- paste0(tolower(assay), "_")}
     return(x)}
+
+#' join_layers
+#'
+#' Join layers for multiple assays 
+#' @param x Seurat object
+#' @param assays A vector of assay names to join. Defaults to {assays = c("RNA", "BCR", "TCR", "CC", "ADT", "HTO")}
+#' @return Seurat object
+#' @export
+join_layers <- function(x, assays = c("RNA", "BCR", "TCR", "CC", "ADT", "HTO")){
+    assays.to.join <- names(x@assays)[which(names(x@assays) %in% assays)]
+    for(i in assays.to.join){
+        x[[i]] <- JoinLayers(x[[i]])}
+    return(x)}
+
+#' list_to_df
+#'
+#' Convert list to dataframe
+#' @param list A list of vectors
+#' @return A dataframe where each column is a vector from the list
+#' @export
+list_to_df <- function(list){
+    max_length <- max(sapply(list, length))
+    padded.list <- lapply(list, function(v) {
+        c(v, rep("", max_length - length(v)))})
+    df <- as.data.frame(padded.list, stringsAsFactors = FALSE)
+    return(df)}
 
 #' convert_seurat_to_anndata
 #'
