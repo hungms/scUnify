@@ -83,7 +83,7 @@ palette_list <- mget(c(
 get_palette <- function(palette, n = 9){
     if(palette %in% c("viridis", "magma", "plasma", "inferno", "cividis", "mako", "rocket", "turbo")){
         palette <- eval(parse(text = paste0("viridis::", palette,"(", n,")")))}
-    else if(palette %in% c("Blues", "BuGn", "BuPu", "GnBu", "Greens", "Greys", "Oranges", "OrRd", "PuBu", "PuBuGn", "PuRd", "Purples", "RdPu", "Reds", "YlGn", "YlGnBu YlOrBr", "YlOrRd")){
+    else if(palette %in% c("Blues", "BuGn", "BuPu", "GnBu", "Greens", "Greys", "Oranges", "OrRd", "PuBu", "PuBuGn", "PuRd", "Purples", "RdPu", "Reds", "YlGn", "YlGnBu YlOrBr", "YlOrRd", "RdBu")){
         palette <- brewer.pal(n, palette)}
     else{
         stopifnot(all(str_detect(palette, "^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$")))}}
