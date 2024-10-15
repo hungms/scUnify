@@ -47,12 +47,43 @@ piyg_11 <- c("#8E0152", "#C51B7D", "#DE77AE", "#F1B6DA", "#FDE0EF", "#F7F7F7", "
 brbg_11 <- c("#543005", "#8C510A", "#BF812D", "#DFC27D", "#F6E8C3", "#F5F5F5", "#C7EAE5", "#80CDC1", "#35978F", "#01665E", "#003C30")
 prgn_11 <- c("#40004B", "#762A83", "#9970AB", "#C2A5CF", "#E7D4E8", "#F7F7F7", "#D9F0D3", "#A6DBA0", "#5AAE61", "#1B7837", "#00441B")
 
+blackpink_6 <- c("#000000", "#EE8D46", "#B03270", "#C0C0C0", "#F5C383", "#D798B7")
+
+vega_10 <- c("#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd",
+"#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf")
+vega_20 <- c(
+    "#1f77b4", "#aec7e8", "#ff7f0e", "#ffbb78", "#2ca02c", "#98df8a", "#d62728", "#ff9896",
+    "#9467bd", "#c5b0d5", "#8c564b", "#c49c49", "#e377c2", "#f7b6d2", "#7f7f7f", "#c7c7c7",
+    "#bcbd22", "#dbdb8d", "#17becf", "#9edae6")
+vega_20c <- c(
+    "#3182bd", "#6baed6", "#9ecae1", "#c6dbef", 
+    "#e6550d", "#fd8d3c", "#fdae6b", "#fdd0a2",
+    "#31a354", "#74c476", "#a1d99b", "#c7e9c0",
+    "#756bb1", "#9e9ae8", "#bcbddc", "#dadaeb",
+    "#636363", "#969696", "#bdbdbd", "#d9d9d9")
 
 palette_list <- mget(c(
     "godsnot_102", "zeileis_28", "royal_4", "asteroid_5", 
-    "darjeeling_5", "zissou_5", "kelly_20", "greenarmytage_25", "brewerplus_41"))
+    "darjeeling_5", "zissou_5", "kelly_20", "greenarmytage_25", 
+    "brewerplus_41", "blackpink_6", "vega_10", "vega_20", "vega_20c"))
+
 #' palette_list
 #'
 #' palette_list
 #' @export
 "palette_list"
+
+
+#' get_palette
+#'
+#' get a vector of hexa color codes
+#' @param palette a vector of hexcode colors, or palettes from "RColorBrewer" or "viridis"
+#' @param n number of colors
+#' @export
+get_palette <- function(palette, n = 9){
+    if(palette %in% c("viridis", "magma", "plasma", "inferno", "cividis", "mako", "rocket", "turbo")){
+        palette <- eval(parse(text = paste0("viridis::", palette,"(", n,")")))}
+    else if(palette %in% c("Blues", "BuGn", "BuPu", "GnBu", "Greens", "Greys", "Oranges", "OrRd", "PuBu", "PuBuGn", "PuRd", "Purples", "RdPu", "Reds", "YlGn", "YlGnBu YlOrBr", "YlOrRd")){
+        palette <- brewer.pal(n, palette)}
+    else{
+        stopifnot(all(str_detect(palette, "^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$")))}}

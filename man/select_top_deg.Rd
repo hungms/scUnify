@@ -4,7 +4,13 @@
 \alias{select_top_deg}
 \title{select_top_deg}
 \usage{
-select_top_deg(markers, n = 5, rank_by = "avg_log2FC", only.pos = F)
+select_top_deg(
+  markers,
+  n = 5,
+  rank_by = "avg_log2FC",
+  only.pos = F,
+  min.pct = 0.1
+)
 }
 \arguments{
 \item{markers}{a dataframe of Seurat::FindAllMarkers output}

@@ -109,7 +109,7 @@ scUMAP <- function(x, reduction = "umap", group.by, cols = NULL, count = F, pt.s
 scDotPlot <- function(
     x, group.by, split.by = NULL, features,
     assay = "RNA", slot = "data", scale = T,
-    palette = "Reds", direction = 1, diffexp = NULL,
+    palette = "RdBu", direction = -1, diffexp = NULL,
     coord_flip = T, unique = F){
 
     # convert genelists to vector, and filter unique genes if necessary
@@ -140,7 +140,8 @@ scDotPlot <- function(
     message("Step 5 : Plotting gene expression")
 
     # add palette
-    palette <- brewer.pal(9, palette)
+    palette <- get_palette(palette, n = 9)
+  
     if(direction < 0){
         palette <- rev(palette)}
 

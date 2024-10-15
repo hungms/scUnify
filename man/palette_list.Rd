@@ -5,7 +5,7 @@
 \alias{palette_list}
 \title{palette_list}
 \format{
-An object of class \code{list} of length 9.
+An object of class \code{list} of length 13.
 }
 \usage{
 palette_list

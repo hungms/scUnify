@@ -104,6 +104,3 @@ pc.complete.hs <- list(
     Interaction = c("LEPR", "VCAM1", "ICAM1", "TNFRSF13B", "SLC3A2", "CD44", "CD37", "ITGAL", "ITGB2", "ITGB1", "ITGA4"),
     IgA = c("TGFB1", "CCR9", "CCR10"))
 
-
-
-

@@ -12,8 +12,8 @@ scDotPlot(
   assay = "RNA",
   slot = "data",
   scale = T,
-  palette = "Reds",
-  direction = 1,
+  palette = "RdBu",
+  direction = -1,
   diffexp = NULL,
   coord_flip = T,
   unique = F
