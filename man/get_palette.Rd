@@ -4,12 +4,14 @@
 \alias{get_palette}
 \title{get_palette}
 \usage{
-get_palette(palette, n = 9)
+get_palette(palette, n = 9, direction = 1)
 }
 \arguments{
 \item{palette}{a vector of hexcode colors, or palettes from "RColorBrewer" or "viridis"}
 
 \item{n}{number of colors}
+
+\item{direction}{direction of the palette vector}
 }
 \description{
 get a vector of hexa color codes

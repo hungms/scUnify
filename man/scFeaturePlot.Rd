@@ -4,12 +4,25 @@
 \alias{scFeaturePlot}
 \title{scFeaturePlot}
 \usage{
-scFeaturePlot(x, features, ncol, plot = F, ...)
+scFeaturePlot(
+  x,
+  assay = "RNA",
+  features,
+  palette = "viridis",
+  direction = 1,
+  ncol,
+  plot = F,
+  ...
+)
 }
 \arguments{
 \item{x}{Seurat object}
 
 \item{features}{feature names stored in a vector}
+
+\item{palette}{a vector of hexcode colors, or palettes from "RColorBrewer" or "viridis"}
+
+\item{direction}{direction of the palette vector}
 
 \item{ncol}{no. of columns for the plots}
 

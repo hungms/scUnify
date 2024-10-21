@@ -10,8 +10,11 @@ convert_seurat_to_anndata(
   columns = NULL,
   pca = "pca",
   umap = "umap",
+  snn = "RNA_snn",
+  nn = "RNA_nn",
   assay = "RNA",
-  return_genes = T
+  return_genes = T,
+  overwrite = F
 )
 }
 \arguments{
