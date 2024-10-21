@@ -50,7 +50,7 @@ b.complete.mm <- list(
     "Activated" = c("Fos", "Cd69", "Dusp2", "Junb"), 
     "Unswitched" = c("Ighd", "Ighm", "Ighg1", "Igha"),
     "Naive" = c("Ccr7", "Sell", "Txnip", "Bank1", "Fcmr", "Bank1",  "Cd22", "Cd24", "Cd27"),
-    "Memory" = c("Klf2", "Cd38", "Hhex", "Tnfrsf13b", "Cd38", "Celf2", "Crip1", "Nt5e", "Itgam", "Fcrl5", "Fcrl4", "Txnip", "Bank1", "Gpr183", "Ccr6"), 
+    "Memory" = c("Klf2", "Cd38", "Hhex", "Tnfrsf13b", "Celf2", "Crip1", "Nt5e", "Itgam", "Fcrl5", "Fcrl4", "Txnip", "Bank1", "Gpr183", "Ccr6"), 
     "Act-Mem" = c("Lrrk2", "Blvrb", "Cd72", "Satb1"),
     "GC-Mem" = c("Cd80", "Pdcd1lg2", "Myadm", "Vim", "Pdlim1"),
     "GC-LZ" = c("Fcer2a", "Cd40", "Il4i1", "Myc", "Bcl2a1a", "Cd83"),

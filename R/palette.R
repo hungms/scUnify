@@ -78,12 +78,17 @@ palette_list <- mget(c(
 #'
 #' get a vector of hexa color codes
 #' @param palette a vector of hexcode colors, or palettes from "RColorBrewer" or "viridis"
+#' @param direction direction of the palette vector
 #' @param n number of colors
 #' @export
-get_palette <- function(palette, n = 9){
+get_palette <- function(palette, n = 9, direction = 1){
     if(palette %in% c("viridis", "magma", "plasma", "inferno", "cividis", "mako", "rocket", "turbo")){
         palette <- eval(parse(text = paste0("viridis::", palette,"(", n,")")))}
     else if(palette %in% c("Blues", "BuGn", "BuPu", "GnBu", "Greens", "Greys", "Oranges", "OrRd", "PuBu", "PuBuGn", "PuRd", "Purples", "RdPu", "Reds", "YlGn", "YlGnBu YlOrBr", "YlOrRd", "RdBu")){
         palette <- brewer.pal(n, palette)}
     else{
-        stopifnot(all(str_detect(palette, "^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$")))}}
+        stopifnot(all(str_detect(palette, "^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$")))}
+
+    if(direction < 0){
+        palette <- rev(palette)}
+    return(palette)}

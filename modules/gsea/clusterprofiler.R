@@ -19,25 +19,25 @@ for(i in c("hs_gs", "mm_gs")){
 
     # hallmark gene set
     HM<-msigdbr(species = org, category ="H")
-    gs[[1]] <- HM %>% select(., gs_name, gene_symbol) %>% mutate(gs_name = gsub("HALLMARK_", "",gs_name))
+    gs[[1]] <- HM %>% dplyr::select(., gs_name, gene_symbol) %>% mutate(gs_name = gsub("HALLMARK_", "",gs_name))
 
     # go gene set
     GO<-msigdbr(species = org, category ="C5")
-    gs[[2]] <-GO %>% select(., gs_name, gene_symbol) %>% filter(stringr::str_detect(gs_name, 'GOBP')) %>% mutate(gs_name = gsub("GOBP_", "",gs_name))
+    gs[[2]] <-GO %>% dplyr::select(., gs_name, gene_symbol) %>% filter(stringr::str_detect(gs_name, 'GOBP')) %>% mutate(gs_name = gsub("GOBP_", "",gs_name))
 
     # kegg gene set
     C2<-msigdbr(species = org, category ="C2")
-    gs[[3]] <-C2 %>% select(., gs_name, gene_symbol) %>% filter(stringr::str_detect(gs_name, 'KEGG')) %>% mutate(gs_name = gsub("KEGG_", "",gs_name))
+    gs[[3]] <-C2 %>% dplyr::select(., gs_name, gene_symbol) %>% filter(stringr::str_detect(gs_name, 'KEGG')) %>% mutate(gs_name = gsub("KEGG_", "",gs_name))
 
     # reactome gene set
-    gs[[4]] <-C2 %>% select(., gs_name, gene_symbol) %>% filter(stringr::str_detect(gs_name, 'REACTOME')) %>% mutate(gs_name = gsub("REACTOME_", "",gs_name))
+    gs[[4]] <-C2 %>% dplyr::select(., gs_name, gene_symbol) %>% filter(stringr::str_detect(gs_name, 'REACTOME')) %>% mutate(gs_name = gsub("REACTOME_", "",gs_name))
 
     # reactome gene set
-    gs[[5]] <-C2 %>% select(., gs_name, gene_symbol) %>% filter(stringr::str_detect(gs_name, 'BIOCARTA')) %>% mutate(gs_name = gsub("BIOCARTA_", "",gs_name))
+    gs[[5]] <-C2 %>% dplyr::select(., gs_name, gene_symbol) %>% filter(stringr::str_detect(gs_name, 'BIOCARTA')) %>% mutate(gs_name = gsub("BIOCARTA_", "",gs_name))
 
     # regulatory gene set
     TFT <-msigdbr(species = org, category ="C3")
-    gs[[6]] <-TFT %>% select(., gs_name, gene_symbol)
+    gs[[6]] <-TFT %>% dplyr::select(., gs_name, gene_symbol)
 
     names(gs) <- c("HM", "GO", "KEGG", "REACTOME", "BIOCARTA", "TFT")
     assign(i, gs)}
@@ -216,7 +216,7 @@ PlotAllHeatmap <- function(x, collection, top_n = NULL, only_pos = T, plot_qval 
             filter(ID %in% plot_pathways)}
 
     nes <- x %>%
-        select(cluster, ID, NES) %>%
+        dplyr::select(cluster, ID, NES) %>%
         arrange(cluster) %>%
         mutate(cluster = as.factor(cluster), NES = as.numeric(NES)) %>%
         complete(cluster, nesting(ID), fill = list(NES = NA)) %>%
@@ -224,7 +224,7 @@ PlotAllHeatmap <- function(x, collection, top_n = NULL, only_pos = T, plot_qval 
         column_to_rownames("ID")
 
     qval <- x %>%
-        select(cluster, ID, qvalue) %>%
+        dplyr::select(cluster, ID, qvalue) %>%
         arrange(cluster) %>%
         mutate(cluster = as.factor(cluster), qvalue = as.numeric(qvalue)) %>%
         complete(cluster, nesting(ID), fill = list(qvalue = 1)) %>%
@@ -341,25 +341,25 @@ pathways_to_excel <- function(x, diffexp, outdir){
             diffexp$cluster <- gsub(paste0("_", paste0(collections, collapse = "|_")), "", n)}}
 
     for(c in seq_along(collections)){
-        selected.list <- deglist[which(str_detect(names(deglist), collections[c]))]
-        for(i in seq_along(selected.list)){
-            cluster.id <- gsub(paste0("_", paste0(collections, collapse = "|_")), "", names(selected.list)[i])
+        dplyr::selected.list <- deglist[which(str_detect(names(deglist), collections[c]))]
+        for(i in seq_along(dplyr::selected.list)){
+            cluster.id <- gsub(paste0("_", paste0(collections, collapse = "|_")), "", names(dplyr::selected.list)[i])
 
             diffexp_genes <- diffexp %>%
                 filter(cluster == cluster.id & p_val_adj < 0.05) %>%
                 .$gene
 
-            edges <- str_split(selected.list[[i]]$core_enrichment, "\\/")
+            edges <- str_split(dplyr::selected.list[[i]]$core_enrichment, "\\/")
 
             for(j in seq_along(edges)){
                 edges[[j]] <- paste0(intersect(edges[[j]], diffexp_genes), collapse = "/")}
 
-            selected.list[[i]] <- selected.list[[i]]@result %>%
+            dplyr::selected.list[[i]] <- dplyr::selected.list[[i]]@result %>%
                 mutate(
                     cluster = paste0(cluster.id),
                     signif_pathway = ifelse(qvalue < 0.05, "True", "False"),
                     signif_core_enrichment = unlist(edges))}
-        sheets[[c]] <- bind_rows(selected.list)}
+        sheets[[c]] <- bind_rows(dplyr::selected.list)}
     names(sheets) <- collections
     writexl::write_xlsx(sheets, outdir)
     }

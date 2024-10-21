@@ -1,3 +1,13 @@
+#' theme_text
+#' 
+#' ggplot2 aesthetic option with texts
+#' @export 
+theme_text <- function(){
+    theme(
+        plot.title = element_text(hjust = 0.5, size = 12, face = "bold"),
+        axis.text.x = element_text(angle = 45, vjust = 0.8, hjust=0.8, size = 10),
+        axis.text.y = element_text(size = 8))}
+
 #' theme_border
 #'
 #' ggplot2 aesthetic option with borders
@@ -109,7 +119,7 @@ scUMAP <- function(x, reduction = "umap", group.by, cols = NULL, count = F, pt.s
 scDotPlot <- function(
     x, group.by, split.by = NULL, features,
     assay = "RNA", slot = "data", scale = T,
-    palette = "RdBu", direction = -1, diffexp = NULL,
+    palette = "magma", direction = 1, diffexp = NULL,
     coord_flip = T, unique = F){
 
     # convert genelists to vector, and filter unique genes if necessary
@@ -140,10 +150,7 @@ scDotPlot <- function(
     message("Step 5 : Plotting gene expression")
 
     # add palette
-    palette <- get_palette(palette, n = 9)
-  
-    if(direction < 0){
-        palette <- rev(palette)}
+    palette <- get_palette(palette, n = 9, direction = direction)
 
     if(coord_flip){
         columns <- c("Group", "order", "Split")
@@ -310,16 +317,20 @@ annotate_diffexp <- function(expdf, diffexp, split.by = NULL){
 #' Plot FeaturePlot from Seurat object
 #' @param x Seurat object
 #' @param features feature names stored in a vector
+#' @param palette a vector of hexcode colors, or palettes from "RColorBrewer" or "viridis"
+#' @param direction direction of the palette vector
 #' @param ncol no. of columns for the plots
 #' @param plot If TRUE, plot with cowplot::plot_grid(). Defaults to FALSE to return a list of ggplot objects
 #' @param ... arguments for Seurat::FeaturePlot()
 #' @export
-scFeaturePlot <- function(x, features, ncol, plot = F, ...){
+scFeaturePlot <- function(x, assay = "RNA", features, palette = "viridis", direction = 1, ncol, plot = F, ...){
     suppressMessages({
+        DefaultAssay(x) <- assay
         plotlist <- FeaturePlot(x, features = features, ncol = ncol, combine = F, ...)
+        palette <- get_palette(palette, n = 9, direction = direction)
         for(x in seq_along(plotlist)){
             plotlist[[x]] <- plotlist[[x]] + 
-                scale_color_viridis() +
+                scale_color_gradientn(colors = palette) +
                 guides(color = guide_colorbar(title = "")) +
 		umap_aes()}})
     p <- plotlist

@@ -656,7 +656,7 @@ list_to_df <- function(list){
 #' @param assay assay name for gene expression. Defaults to "RNA"
 #' @param return_genes if TRUE, return genes from assays named c("CC", "BCR", "TCR", "MHC") to current assay. Defaults to TRUE
 #' @export
-convert_seurat_to_anndata <- function(x, h5ad, columns = NULL, pca = "pca", umap = "umap", assay = "RNA", return_genes = T){
+convert_seurat_to_anndata <- function(x, h5ad, columns = NULL, pca = "pca", umap = "umap", snn = "RNA_snn", nn = "RNA_nn", assay = "RNA", return_genes = T, overwrite = F){
 
     # downgrade to v4
     options(Seurat.object.assay.version = "v3")
@@ -678,24 +678,31 @@ convert_seurat_to_anndata <- function(x, h5ad, columns = NULL, pca = "pca", umap
         if(length(return_assays) > 0){
             message(paste0("returning assays (", paste0(return_assays, collapse = ", "), ") to ", assay, " assay"))
             for(i in return_assays){
-                x <- return_genes(x, from.assay = i, to.assay = assay)}}}
+                x <- return_genes(x, from.assay = i, to.assay = "RNA")}}}
 
     message("storing PCA, UMAP to the appropriate reduction slot")
     DefaultAssay(x) <- assay
     x@reductions[["pca"]] <- x@reductions[[pca]]
     x@reductions[["umap"]] <- x@reductions[[umap]]
-    x@reductions <- x@reductions[c("pca", "umap")]
+    x@reductions <- x@reductions[c("umap", "pca")]
+    x@graphs[[paste0(assay, "_snn")]] <- x@graphs[[snn]]
+    x@graphs[[paste0(assay, "_nn")]] <- x@graphs[[nn]]
 
-    if(any(!str_detect(names(x@assays), "SCT"))){
-        v5assays <- names(x@assays)[which(!str_detect(names(x@assays), "SCT"))]
+    if(any(!str_detect(names(x@assays), "SCT|integrated"))){
+        v5assays <- names(x@assays)[which(!str_detect(names(x@assays), "SCT|integrated"))]
         message(paste0("converting V5 assays (", paste0(v5assays, collapse = ", "), ") to V3 assays"))
         for(i in v5assays){
             x[[i]] <- as(object = x[[i]], Class = "Assay")}}
+    
+    for(i in names(x@assays)){
+        if(str_detect(i, "SCT|integrated")){
+            x[[i]] <- NULL}}
 
-    h5seurat <- gsub("\\.h5ad", ".h5Seurat", h5ad)
-    SeuratDisk::SaveH5Seurat(x, filename = h5seurat)
-    SeuratDisk::Convert(h5seurat, dest=h5ad)
-
+    x@reductions$pca@assay.used <- assay
+    x@reductions$umap@assay.used <- assay
+    x@graphs[[paste0(assay, "_snn")]]@assay.used <- c(pca = assay)
+    x@graphs[[paste0(assay, "_nn")]]@assay.used <- c(pca = assay)
+    MuDataSeurat::WriteH5AD(x, h5ad, assay=assay, scale.data = F, overwrite = overwrite) #https://github.com/zqfang/MuDataSeurat
     options(Seurat.object.assay.version = "v5")
     }
 
