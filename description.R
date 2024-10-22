@@ -2,7 +2,7 @@ pkgs <- c(
     "tidyverse", "ggrepel", "patchwork", "cowplot", "scales", 
     "grid", "gridExtra", "viridis", "wesanderson", "RColorBrewer", "qs", 
     "readxl", "writexl", "rstatix", "ggpubr", "Seurat", "harmony", "ggh4x", 
-    "biomaRt", "BiocParallel", "UCell", "celda", "scDblFinder", 
+    "biomaRt", "BiocParallel", "UCell", "celda", "scDblFinder", "dsb",
     "DoubletFinder", "ComplexHeatmap")
 
 for(x in pkgs){

@@ -36,8 +36,9 @@ Imports:
     celda,
     DoubletFinder,
     scDblFinder,
-    UCell
-Remotes: chris-mcginnis-ucsf/DoubletFinder
+    UCell,
+    dsb
+Remotes: chris-mcginnis-ucsf/DoubletFinder, zqfang/MuDataSeurat
 biocViews: 
     biomaRt,
     celda,

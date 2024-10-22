@@ -33,7 +33,8 @@ if (!require("devtools", quietly = TRUE))
 devtools::install_github(git)
 ```
 
-## Optional Modules
+## Optional Modules : 
+---
 ### VDJ Analysis
 ```ruby
 ## Install CRAN packages
