@@ -61,32 +61,77 @@
 <h2 id="dependencies">Dependencies<a class="anchor" aria-label="anchor" href="#dependencies"></a>
 </h2>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">## Install CRAN packages</span></span>
+<code class="sourceCode R"><span><span class="co">### Install CRAN packages</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>timeout <span class="op">=</span> <span class="fl">500</span><span class="op">)</span></span>
 <span><span class="va">cran</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>    <span class="st">"tidyverse"</span>, <span class="st">"ggrepel"</span>, <span class="st">"patchwork"</span>, <span class="st">"cowplot"</span>, <span class="st">"scales"</span>, <span class="st">"ggh4x"</span>,</span>
 <span>    <span class="st">"grid"</span>, <span class="st">"gridExtra"</span>, <span class="st">"viridis"</span>, <span class="st">"wesanderson"</span>, <span class="st">"RColorBrewer"</span>, <span class="st">"qs"</span>, </span>
-<span>    <span class="st">"readxl"</span>, <span class="st">"writexl"</span>, <span class="st">"rstatix"</span>, <span class="st">"ggpubr"</span>, <span class="st">"Seurat"</span>, <span class="st">"harmony"</span><span class="op">)</span></span>
+<span>    <span class="st">"readxl"</span>, <span class="st">"writexl"</span>, <span class="st">"rstatix"</span>, <span class="st">"ggpubr"</span>, <span class="st">"Seurat"</span>, <span class="st">"harmony"</span>, <span class="st">"dsb"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="va">cran</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co">## Install Bioconductor packages</span></span>
+<span><span class="co">### Install Bioconductor packages</span></span>
 <span><span class="va">bioc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"biomaRt"</span>, <span class="st">"BiocParallel"</span>, <span class="st">"UCell"</span>, <span class="st">"celda"</span>, <span class="st">"scDblFinder"</span>, <span class="st">"ComplexHeatmap"</span><span class="op">)</span></span>
 <span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="st"><a href="https://bioconductor.github.io/BiocManager/" class="external-link">"BiocManager"</a></span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"BiocManager"</span><span class="op">)</span></span>
 <span><span class="fu">BiocManager</span><span class="fu">::</span><span class="fu">install</span><span class="op">(</span><span class="va">bioc</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co">## Install Github packages</span></span>
-<span><span class="va">git</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"chris-mcginnis-ucsf/DoubletFinder"</span>, <span class="st">"mojaveazure/seurat-disk"</span><span class="op">)</span></span>
+<span><span class="co">### Install Github packages</span></span>
+<span><span class="va">git</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"chris-mcginnis-ucsf/DoubletFinder"</span>, <span class="st">"zqfang/MuDataSeurat"</span><span class="op">)</span></span>
 <span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="st"><a href="https://devtools.r-lib.org/" class="external-link">"devtools"</a></span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"devtools"</span><span class="op">)</span></span>
 <span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="va">git</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="optional-modules">Optional Modules<a class="anchor" aria-label="anchor" href="#optional-modules"></a>
+<h2 id="id_-optional-modules-">## Optional Modules :<a class="anchor" aria-label="anchor" href="#id_-optional-modules-"></a>
 </h2>
+<div class="section level3">
+<h3 id="vdj-analysis">VDJ Analysis<a class="anchor" aria-label="anchor" href="#vdj-analysis"></a>
+</h3>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">## Optional Modules</span></span>
-<span><span class="co">### Under Development (as of 31 Aug 2024)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="co">## Install CRAN packages</span></span>
+<span><span class="va">cran</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="va">cran</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">## Install Bioconductor packages</span></span>
+<span><span class="va">bioc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu">BiocManager</span><span class="fu">::</span><span class="fu">install</span><span class="op">(</span><span class="va">bioc</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">## Install Github packages</span></span>
+<span><span class="va">git</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="va">git</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="cell-classification">Cell Classification<a class="anchor" aria-label="anchor" href="#cell-classification"></a>
+</h3>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">## Install CRAN packages</span></span>
+<span><span class="va">cran</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="va">cran</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">## Install Bioconductor packages</span></span>
+<span><span class="va">bioc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu">BiocManager</span><span class="fu">::</span><span class="fu">install</span><span class="op">(</span><span class="va">bioc</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">## Install Github packages</span></span>
+<span><span class="va">git</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="va">git</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="differential-expression--pathway-analysis">Differential Expression &amp; Pathway Analysis<a class="anchor" aria-label="anchor" href="#differential-expression--pathway-analysis"></a>
+</h3>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">## Install CRAN packages</span></span>
+<span><span class="va">cran</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="va">cran</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">## Install Bioconductor packages</span></span>
+<span><span class="va">bioc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu">BiocManager</span><span class="fu">::</span><span class="fu">install</span><span class="op">(</span><span class="va">bioc</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">## Install Github packages</span></span>
+<span><span class="va">git</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="va">git</span><span class="op">)</span></span></code></pre></div>
+</div>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="license">
