@@ -1,17 +1,3 @@
-bcr.string <- "^I[Gg][HKLhkl][VDJCAEMGvdjcaemg]|^AC233755"
-#' BCR string
-#'
-#' BCR string
-#' @export
-"bcr.string"
-
-tcr.string <- "^T[Rr][ABCDGabcdg][VDJCvdjc]"
-#' TCR string
-#'
-#' TCR string
-#' @export
-"tcr.string"
-
 #' get_biomart
 #'
 #' Initializes the Ensembl Mart for human and mouse gene symbols.
@@ -109,3 +95,18 @@ convert_mouse_to_human_seurat <- function(x, orig.assay = "RNA", new.assay = "RN
     x[[new.assay]] <- CreateAssay5Object(counts, min.feature = 0, min.cell = 0)
     return(x)
 }
+
+bcr.string <- "^I[Gg][HKLhkl][VDJCAEMGvdjcaemg]|^AC233755"
+#' BCR string
+#'
+#' BCR string
+#' @export
+"bcr.string"
+
+tcr.string <- "^T[Rr][ABCDGabcdg][VDJCvdjc]"
+#' TCR string
+#'
+#' TCR string
+#' @export
+"tcr.string"
+

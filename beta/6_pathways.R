@@ -1,13 +1,6 @@
-library(clusterProfiler)
-library(msigdbr)
-library(fgsea)
-library(readxl)
-library(writexl)
-library(tidyverse)
-library(qs)
-library(RColorBrewer)
-library(circlize)
-library(ggrepel)
+#library(clusterProfiler)
+#library(msigdbr)
+#library(fgsea)
 
 for(i in c("hs_gs", "mm_gs")){
     if(i == "hs_gs"){
@@ -363,3 +356,4 @@ pathways_to_excel <- function(x, diffexp, outdir){
     names(sheets) <- collections
     writexl::write_xlsx(sheets, outdir)
     }
+

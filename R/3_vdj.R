@@ -1,13 +1,9 @@
-#' dependencies
-#'
-#' load vdj dependencies
-#' @export
-library(alakazam)
-library(scoper)
-library(dplyr)
-library(Seurat)
-library(shazam)
-library(dowser)
+#library(alakazam)
+#library(scoper)
+#library(dplyr)
+#library(Seurat)
+#library(shazam)
+#library(dowser)
 
 #' seurat_add_dandelion
 #'
@@ -19,7 +15,7 @@ library(dowser)
 seurat_add_dandelion <- function(x, vdj, paired = T){
     vdj <- vdj %>%
         filter(filter_contig == "False" & productive_VDJ == "T") %>%
-        select(!samples)
+        dplyr::select(!samples)
 
     if(paired){
         vdj <- vdj %>%
@@ -30,14 +26,22 @@ seurat_add_dandelion <- function(x, vdj, paired = T){
         group_by(clone_id) %>%
         mutate(
             cellxclone = n(),
-            clone_size_group = case_when(
+            clone_by_count = case_when(
                 cellxclone > 30 ~ "Hyperexpanded (30< X)",
                 cellxclone > 10 & cellxclone <= 30 ~ "Large (11< X ≤30)",
                 cellxclone > 5 & cellxclone <= 10 ~ "Medium (5< X ≤10)",
                 cellxclone >= 2 & cellxclone <=5 ~ "Small (1< X ≤5)",
                 .default = "Single (0< X ≤1)")) %>%
-        mutate(clone_size_group = factor(clone_size_group, c("Single (0< X ≤1)", "Small (1< X ≤5)", "Medium (5< X ≤10)", "Large (11< X ≤30)", "Hyperexpanded (30< X)"))) %>%
+        mutate(clone_by_count = factor(clone_by_count, c("Single (0< X ≤1)", "Small (1< X ≤5)", "Medium (5< X ≤10)", "Large (11< X ≤30)", "Hyperexpanded (30< X)"))) %>%
         ungroup() %>%
+        mutate(clone_by_percent = cellxclone/n(),
+                clone_by_percent = case_when(
+                    clone_by_percent <= 0.0001 ~ "Rare (X≤ 1e-04)",
+                    clone_by_percent > 0.0001 & clone_by_percent <= 0.001 ~ "Small (1e-04< X ≤ 0.001)",
+                    clone_by_percent > 0.001 & clone_by_percent <= 0.01 ~ "Medium (0.001< X ≤ 0.01)",
+                    clone_by_percent > 0.01 & clone_by_percent <= 0.1 ~ "Large (0.01< X ≤ 0.1)",
+                    clone_by_percent > 0.1 ~ "Hyperexpanded (0.1< X)")) %>%
+        mutate(clone_by_percent = factor(clone_by_percent, c("Rare (X≤ 1e-04)", "Small (1e-04< X ≤ 0.001)", "Medium (0.001< X ≤ 0.01)", "Large (0.01< X ≤ 0.1)", "Hyperexpanded (0.1< X)"))) %>%
         column_to_rownames("Row.names")
     x@meta.data <- metadata[rownames(x@meta.data),]
     return(x)}
@@ -69,10 +73,7 @@ plot_vdj_qc <- function(x, group.by = "samples"){
 #' @param group.by column to group cells by
 #' @export
 plot_vdj <- function(x, group.by, facet.by = NULL, variable = "isotype"){
-
-    if(!variable %in% c("isotype", "clone_size_group")){
-        stop('make sure variable must be either "isotype" or "clone_size_group"')}
-
+    
     if(length(facet.by) > 0){
         group <- c(group.by, facet.by)}
     else{
@@ -84,9 +85,9 @@ plot_vdj <- function(x, group.by, facet.by = NULL, variable = "isotype"){
         metadata <- x@meta.data %>%
             filter(str_detect(isotype, "^Ig[DMAGE]$")) %>%
             mutate(isotype = factor(isotype, names(cols)))}
-    else if(variable == "clone_size_group"){
+    else if(str_detect(variable, "clone_by")){
         cols <- palette_list[["zissou_5"]]
-        names(cols) <- c("Single (0< X ≤1)", "Small (1< X ≤5)", "Medium (5< X ≤10)", "Large (11< X ≤30)", "Hyperexpanded (30< X)")
+        names(cols) <- levels(x@meta.data[[variable]])
         metadata <- x@meta.data}
 
     plot <- metadata %>%
@@ -99,6 +100,7 @@ plot_vdj <- function(x, group.by, facet.by = NULL, variable = "isotype"){
         scale_fill_manual(values = cols) +
         guides(fill = guide_legend(title = "")) +
         theme_line() +
+        theme_text() +
         xlab("") +
         ylab("Proportions (%)")
 

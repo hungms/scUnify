@@ -12,29 +12,69 @@ remotes::install_github("mshung229/scUnify", dependencies=FALSE)
 
 ## Dependencies
 ```ruby
-## Install CRAN packages
+### Install CRAN packages
 options(timeout = 500)
 cran <- c(
     "tidyverse", "ggrepel", "patchwork", "cowplot", "scales", "ggh4x",
     "grid", "gridExtra", "viridis", "wesanderson", "RColorBrewer", "qs", 
-    "readxl", "writexl", "rstatix", "ggpubr", "Seurat", "harmony")
+    "readxl", "writexl", "rstatix", "ggpubr", "Seurat", "harmony", "dsb")
 install.packages(cran)
 
-## Install Bioconductor packages
+### Install Bioconductor packages
 bioc <- c("biomaRt", "BiocParallel", "UCell", "celda", "scDblFinder", "ComplexHeatmap")
 if (!require("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
 BiocManager::install(bioc)
 
-## Install Github packages
-git <- c("chris-mcginnis-ucsf/DoubletFinder", "mojaveazure/seurat-disk")
+### Install Github packages
+git <- c("chris-mcginnis-ucsf/DoubletFinder", "zqfang/MuDataSeurat")
 if (!require("devtools", quietly = TRUE))
     install.packages("devtools")
 devtools::install_github(git)
 ```
 
 ## Optional Modules
+### VDJ Analysis
 ```ruby
-## Optional Modules
-### Under Development (as of 31 Aug 2024)
+## Install CRAN packages
+cran <- c()
+install.packages(cran)
+
+## Install Bioconductor packages
+bioc <- c()
+BiocManager::install(bioc)
+
+## Install Github packages
+git <- c()
+devtools::install_github(git)
+```
+
+### Cell Classification
+```ruby
+## Install CRAN packages
+cran <- c()
+install.packages(cran)
+
+## Install Bioconductor packages
+bioc <- c()
+BiocManager::install(bioc)
+
+## Install Github packages
+git <- c()
+devtools::install_github(git)
+```
+
+### Differential Expression & Pathway Analysis
+```ruby
+## Install CRAN packages
+cran <- c()
+install.packages(cran)
+
+## Install Bioconductor packages
+bioc <- c()
+BiocManager::install(bioc)
+
+## Install Github packages
+git <- c()
+devtools::install_github(git)
 ```

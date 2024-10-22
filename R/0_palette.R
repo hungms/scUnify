@@ -65,7 +65,8 @@ vega_20c <- c(
 palette_list <- mget(c(
     "godsnot_102", "zeileis_28", "royal_4", "asteroid_5", 
     "darjeeling_5", "zissou_5", "kelly_20", "greenarmytage_25", 
-    "brewerplus_41", "blackpink_6", "vega_10", "vega_20", "vega_20c"))
+    "brewerplus_41", "blackpink_6", "vega_10", "vega_20", "vega_20c", 
+    "calc_11", "piyg_11", "brbg_11", "prgn_11"))
 
 #' palette_list
 #'

@@ -144,6 +144,35 @@ process_hto <- function(x, assay = "HTO"){
     return(x)
 }
 
+#' dsb_normalize
+#' 
+#' Normalize CITEseq expressions by DSB normalization
+#' 
+#' @param x a list of seurat objects
+#' @param dir 
+#' @param denoise.counts
+#' @param use.isotype.control
+#' @param isotype.control.name.vec
+#' @return a list of seurat objects with DSB normalised "data" in ADT assay
+#' @export
+dsb_normalize <- function(x, dir, denoise.counts = T, use.isotype.control = F, isotype.control.name.vec = NULL){
+    stopifnot(length(x) == length(dir))
+    raw.dir <- gsub("/outs/.*", "/outs/multi/count/raw_feature_bc_matrix", dir)
+
+    for(i in seq_along(x)){
+        adt.cell <- Read10X(dir[i])[["Antibody Capture"]][rownames(x[["ADT"]]),]
+        adt.raw <- Read10X(raw.dir[i])[["Antibody Capture"]][rownames(x[["ADT"]]),]
+        adt.raw <- adt.raw[, -c(which(colnames(adt.raw) %in% colnames(adt.cell)))]
+        x[[i]][["ADT"]]$data = dsb::DSBNormalizeProtein(
+            cell_protein_matrix = adt.cell, 
+            empty_drop_matrix = adt.raw, 
+            denoise.counts = denoise.counts, 
+            use.isotype.control = use.isotype.control,
+            isotype.control.name.vec = isotype.control.name.vec)}
+    
+    return(x)
+    }
+
 #' calculate_mad
 #'
 #' Calculate median absolute deviation (MAD) and identify poor quality cells
@@ -527,202 +556,3 @@ plot_similarity_heatmap <- function(correlation.matrix, annotations = colnames(c
             legend_direction = "vertical")
         )
     return(ht)}
-
-
-#' select_top_deg
-#'
-#' Find top differentially expressed genes for each cluster from Seurat::FindAllMarkers output.
-#' @param markers a dataframe of Seurat::FindAllMarkers output
-#' @param n no. of genes per cluster
-#' @param rank_by variables to rank by, either "avg_log2FC", "p_val_adj", "diff_pct"
-#' @param only.pos if TRUE, return only genes with positive avg_log2FC. Defaults to FALSE
-#' @export
-select_top_deg <- function(markers, n = 5, rank_by = "avg_log2FC", only.pos = F, min.pct = 0.1){
-
-    if(!rank_by %in% c("avg_log2FC", "p_val_adj", "diff_pct", "pxFC")){
-        stop('please make sure rank_by is either "avg_log2FC", "p_val_adj", "diff_pct", "pxFC"')}
-
-    genelist <- markers %>%
-        filter(!str_detect(gene, paste0("^Mt|^Rp[sl]|", bcr.string))) %>%
-        filter(p_val_adj < 0.05) %>%
-        mutate(diff_pct = pct.1 - pct.2)
-
-    if(only.pos){
-        genelist <- genelist %>%
-            filter(avg_log2FC > 0 & pct.1 >= min.pct)}
-    else{
-        genelist <- genelist %>%
-            mutate(
-                direction = ifelse(avg_log2FC > 0, "UP", "DOWN"),
-                cluster = paste0(cluster, "_", direction),
-                remove = case_when(
-                    direction == "UP" & pct.1 < min.pct ~ "remove",
-                    direction == "DOWN" & pct.1 == 0 ~ "remove",
-                    .default = "keep")) %>%
-            filter(remove != "remove")}
-
-    if(rank_by == "avg_log2FC"){
-        genelist <- genelist %>%
-            group_by(cluster) %>%
-            slice_max(n=n, order_by = avg_log2FC^2, with_ties = F) %>%
-            split(.$cluster) %>%
-            lapply(function(df) df$gene)}
-
-    if(rank_by == "p_val_adj"){
-        genelist <- genelist %>%
-            group_by(cluster) %>%
-            slice_min(n=n, order_by = p_val_adj, with_ties = F) %>%
-            split(.$cluster) %>%
-            lapply(function(df) df$gene)}
-    
-    if(rank_by == "diff_pct"){
-        genelist <- genelist %>%
-            group_by(cluster) %>%
-            slice_max(n=n, order_by = diff_pct^2, with_ties = F) %>%
-            split(.$cluster) %>%
-            lapply(function(df) df$gene)}
-
-    if(rank_by == "pxFC"){
-        genelist <- genelist %>%
-            mutate(pxFC = avg_log2FC*-log10(p_val_adj)) %>%
-            group_by(cluster) %>%
-            slice_max(n=n, order_by = pxFC^2, with_ties = F) %>%
-            split(.$cluster) %>%
-            lapply(function(df) df$gene)}
-
-    return(genelist)}
-
-#' intersect_genes
-#'
-#' intersect common gene names between a list of seurat objects
-#' @param x a list of Seurat object
-#' @param assay assay name
-#' @param min.cells minimum number of cells expressing the gene
-#' @export
-intersect_genes <- function(x, assay = "RNA", min.cells = 3){
-    intersect.list <- list()
-    for(i in seq_along(x)){
-        keep <- rowSums(x[[i]][[assay]]$counts >= 1) >= min.cells
-        intersect.list[[i]] <- rownames(x[[i]][[assay]]$counts)[keep]}
-    genes <- Reduce(intersect, intersect.list)
-    return(genes)}
-
-
-
-#' set_assay_keys
-#'
-#' Bugfix for setting assay keys when creating Seurat object
-#' @param x Seurat object
-#' @export
-set_assay_keys <- function(x){
-    for(assay in names(x@assays)){
-        x[[assay]]@key <- paste0(tolower(assay), "_")}
-    return(x)}
-
-#' join_layers
-#'
-#' Join layers for multiple assays 
-#' @param x Seurat object
-#' @param assays A vector of assay names to join. Defaults to {assays = c("RNA", "BCR", "TCR", "CC", "ADT", "HTO")}
-#' @return Seurat object
-#' @export
-join_layers <- function(x, assays = c("RNA", "BCR", "TCR", "CC", "ADT", "HTO")){
-    assays.to.join <- names(x@assays)[which(names(x@assays) %in% assays)]
-    for(i in assays.to.join){
-        x[[i]] <- JoinLayers(x[[i]])}
-    return(x)}
-
-#' list_to_df
-#'
-#' Convert list to dataframe
-#' @param list A list of vectors
-#' @return A dataframe where each column is a vector from the list
-#' @export
-list_to_df <- function(list){
-    max_length <- max(sapply(list, length))
-    padded.list <- lapply(list, function(v) {
-        c(v, rep("", max_length - length(v)))})
-    df <- as.data.frame(padded.list, stringsAsFactors = FALSE)
-    return(df)}
-
-#' convert_seurat_to_anndata
-#'
-#' Convert Seurat to AnnData with SeuratDisk::Convert()
-#' @param x Seurat object
-#' @param h5ad path for output .h5ad file
-#' @param columns a vector of metadata columns to keep. Defaults to NULL to keep all columns
-#' @param pca reduction name for X_pca. Defaults to "pca"
-#' @param umap reduction name for X_umap. Defaults to "umap"
-#' @param assay assay name for gene expression. Defaults to "RNA"
-#' @param return_genes if TRUE, return genes from assays named c("CC", "BCR", "TCR", "MHC") to current assay. Defaults to TRUE
-#' @export
-convert_seurat_to_anndata <- function(x, h5ad, columns = NULL, pca = "pca", umap = "umap", snn = "RNA_snn", nn = "RNA_nn", assay = "RNA", return_genes = T, overwrite = F){
-
-    # downgrade to v4
-    options(Seurat.object.assay.version = "v3")
-    if(!is.object(x)){
-        if(file.exists(x)){
-            x <- qread(paste0(x))}}
-
-    if(!length(columns) > 0){
-        message(paste0("selecting all columns from metadata"))
-        columns <- colnames(x@meta.data)}
-    else{
-	message(paste0("selecting columns from metadata: ", paste0(columns, collapse = ", ")))
-        x@meta.data <- x@meta.data[,columns]}
-    for(i in seq_along(colnames(x@meta.data))){
-        x@meta.data[[i]] <- as.character(x@meta.data[[i]])}
-
-    if(return_genes & !str_detect(assay, "SCT")){
-        return_assays <- intersect(c("CC", "BCR", "TCR", "MHC"), names(x@assays))
-        if(length(return_assays) > 0){
-            message(paste0("returning assays (", paste0(return_assays, collapse = ", "), ") to ", assay, " assay"))
-            for(i in return_assays){
-                x <- return_genes(x, from.assay = i, to.assay = "RNA")}}}
-
-    message("storing PCA, UMAP to the appropriate reduction slot")
-    DefaultAssay(x) <- assay
-    x@reductions[["pca"]] <- x@reductions[[pca]]
-    x@reductions[["umap"]] <- x@reductions[[umap]]
-    x@reductions <- x@reductions[c("umap", "pca")]
-    x@graphs[[paste0(assay, "_snn")]] <- x@graphs[[snn]]
-    x@graphs[[paste0(assay, "_nn")]] <- x@graphs[[nn]]
-
-    if(any(!str_detect(names(x@assays), "SCT|integrated"))){
-        v5assays <- names(x@assays)[which(!str_detect(names(x@assays), "SCT|integrated"))]
-        message(paste0("converting V5 assays (", paste0(v5assays, collapse = ", "), ") to V3 assays"))
-        for(i in v5assays){
-            x[[i]] <- as(object = x[[i]], Class = "Assay")}}
-    
-    for(i in names(x@assays)){
-        if(str_detect(i, "SCT|integrated")){
-            x[[i]] <- NULL}}
-
-    x@reductions$pca@assay.used <- assay
-    x@reductions$umap@assay.used <- assay
-    x@graphs[[paste0(assay, "_snn")]]@assay.used <- c(pca = assay)
-    x@graphs[[paste0(assay, "_nn")]]@assay.used <- c(pca = assay)
-    MuDataSeurat::WriteH5AD(x, h5ad, assay=assay, scale.data = F, overwrite = overwrite) #https://github.com/zqfang/MuDataSeurat
-    options(Seurat.object.assay.version = "v5")
-    }
-
-#' convert_seurat_to_sce
-#'
-#' Convert Seurat to SingleCellExperiment object with SeuratWrapper::as.SingleCellExperiment()
-#' @param x Seurat object
-#' @param assay assay name for gene expression. Defaults to "RNA"
-#' @param return_genes if TRUE, return genes from assays named c("CC", "BCR", "TCR", "MHC") to current assay. Defaults to TRUE
-#' @export
-convert_seurat_to_sce <- function(x, assay = "RNA", return_genes = T){
-
-    if(return_genes & !str_detect(assay, "SCT")){
-        return_assays <- intersect(c("CC", "BCR", "TCR", "MHC"), names(x@assays))
-        if(length(return_assays) > 0){
-            message(paste0("returning assays (", paste0(return_assays, collapse = ", "), ") to ", assay, " assay"))
-            for(i in return_assays){
-                x <- return_genes(x, from_assay = i, to_assay = assay)}}}
-
-    x <- DietSeurat(x, assay = assay)
-    x[[assay]] <- as(object = x[[assay]], Class = "Assay")
-    sce <- as.SingleCellExperiment(x)
-    return(sce)}
