@@ -5,7 +5,7 @@
 #' @param samples a vector of sample names for each directory
 #' @param hto_str prefix to identify HTO tag names if HTO library is present. Defaults to NULL
 #' @export
-create_seurat_object <- function(dir, samples, hto_str = NULL){
+create_seurat_object <- function(dir, samples, hto_str = NULL, adt_normalize = T){
     stopifnot(length(samples) == length(dir))
 
     x <- list()
@@ -37,7 +37,8 @@ create_seurat_object <- function(dir, samples, hto_str = NULL){
         message(paste0("Step 4 : Adding HTO counts", hto.skip))
         if(any.hto){
             hash <- mtx$`Antibody Capture`[c(which(str_detect(rownames(mtx$`Antibody Capture`), hto_str))),]
-            seu_obj[["HTO"]] <- CreateAssay5Object(as.matrix(hash[,colnames(seu_obj[["RNA"]]$counts)]), min.cells = 0, min.features = 0)}
+            seu_obj[["HTO"]] <- CreateAssay5Object(as.matrix(hash[,colnames(seu_obj[["RNA"]]$counts)]), min.cells = 0, min.features = 0)
+            }
 
        	# add adt counts
         message(paste0("Step 5 : Adding ADT counts", adt.skip))
@@ -46,8 +47,9 @@ create_seurat_object <- function(dir, samples, hto_str = NULL){
             if(any.hto){
                 prot <- prot[-c(which(str_detect(rownames(prot), hto_str))),]}
             seu_obj[["ADT"]] <- CreateAssay5Object(as.matrix(prot[,colnames(seu_obj[["RNA"]]$counts)]), min.cells = 0, min.features = 0)
+            if(adt_normalize){
+                seu_obj <- dsb_normalize(seu_obj, dir = dir[i], denoise.counts = T, use.isotype.control = F, isotype.control.name.vec = NULL)}
 
-            
             }
 
        	# add sample id in metadata
@@ -148,7 +150,7 @@ process_hto <- function(x, assay = "HTO"){
 #' 
 #' Normalize CITEseq expressions by DSB normalization
 #' 
-#' @param x a list of seurat objects
+#' @param x a seurat object
 #' @param dir 
 #' @param denoise.counts
 #' @param use.isotype.control
@@ -158,17 +160,17 @@ process_hto <- function(x, assay = "HTO"){
 dsb_normalize <- function(x, dir, denoise.counts = T, use.isotype.control = F, isotype.control.name.vec = NULL){
     stopifnot(length(x) == length(dir))
     raw.dir <- gsub("/outs/.*", "/outs/multi/count/raw_feature_bc_matrix", dir)
+    
 
-    for(i in seq_along(x)){
-        adt.cell <- Read10X(dir[i])[["Antibody Capture"]][rownames(x[["ADT"]]),]
-        adt.raw <- Read10X(raw.dir[i])[["Antibody Capture"]][rownames(x[["ADT"]]),]
-        adt.raw <- adt.raw[, -c(which(colnames(adt.raw) %in% colnames(adt.cell)))]
-        x[[i]][["ADT"]]$data = dsb::DSBNormalizeProtein(
+    adt.cell <- Read10X(dir)[["Antibody Capture"]][rownames(x[["ADT"]]),]
+    adt.raw <- Read10X(raw.dir)[["Antibody Capture"]][rownames(x[["ADT"]]),]
+    adt.raw <- adt.raw[, -c(which(colnames(adt.raw) %in% colnames(adt.cell)))]
+    x[["ADT"]]$data = dsb::DSBNormalizeProtein(
             cell_protein_matrix = adt.cell, 
             empty_drop_matrix = adt.raw, 
             denoise.counts = denoise.counts, 
             use.isotype.control = use.isotype.control,
-            isotype.control.name.vec = isotype.control.name.vec)}
+            isotype.control.name.vec = isotype.control.name.vec)
     
     return(x)
     }
@@ -247,10 +249,13 @@ run_doubletfinder <- function(x, assay = "RNA", dims = 1:10, truth = NULL, clust
     if(!"data" %in% Layers(obj, assay = assay)){
         obj <- NormalizeData(obj, verbose = F)}
 
+    if(str_detect(assay, "SCT")){
+        sct <- TRUE}
+
     if(length(truth) == 0){
         message("Step 1 : No ground truth")
         suppressMessages({
-            sweep_res <- paramSweep(obj, PCs = dims, sct = FALSE, num.cores = ncores)
+            sweep_res <- paramSweep(obj, PCs = dims, sct = sct, num.cores = ncores)
             sweep_stat <- summarizeSweep(sweep_res, GT = FALSE)})}
 
     else if (truth %in% colnames(obj@meta.data)){
@@ -259,7 +264,7 @@ run_doubletfinder <- function(x, assay = "RNA", dims = 1:10, truth = NULL, clust
         obj <- subset(obj, cells = cells)
 
         suppressMessages({
-            sweep_res <- paramSweep(obj, PCs = dims, sct = FALSE, num.cores = ncores)
+            sweep_res <- paramSweep(obj, PCs = dims, sct = sct, num.cores = ncores)
             gt.calls <- obj@meta.data[rownames(sweep_res[[1]]), truth]
             sweep_stat <- summarizeSweep(sweep_res, GT = TRUE, GT.calls = gt.calls)})}
 
@@ -275,9 +280,9 @@ run_doubletfinder <- function(x, assay = "RNA", dims = 1:10, truth = NULL, clust
     prop <- modelHomotypic(x@meta.data[[clusters]])
     nExp_poi <- round(dbr*nrow(x@meta.data))
     nExp_poi.adj <- round(nExp_poi*(1-prop))
-    obj <- doubletFinder(obj, PCs = 1:10, pN = 0.25, pK = top_pK, nExp = nExp_poi, reuse.pANN = FALSE, sct = FALSE)
+    obj <- doubletFinder(obj, PCs = 1:10, pN = 0.25, pK = top_pK, nExp = nExp_poi, reuse.pANN = FALSE, sct = sct)
     obj@meta.data %>% dplyr::select(starts_with("pANN_0.25")) %>% colnames() -> pann
-    obj <- doubletFinder(obj, PCs = 1:10, pN = 0.25, pK = top_pK, nExp = nExp_poi.adj, reuse.pANN = pann, sct = FALSE)
+    obj <- doubletFinder(obj, PCs = 1:10, pN = 0.25, pK = top_pK, nExp = nExp_poi.adj, reuse.pANN = pann, sct = sct)
     class <- obj@meta.data %>%
         dplyr::select(c("cell_barcode", tail(colnames(obj@meta.data),1)))
     colnames(class)[2] <- "DoubletFinder"
@@ -452,17 +457,17 @@ process_seurat <- function(x, assay = "RNA", dims = 1:10, res = 0.4, reduction =
 #' @param assay assay name of gene expression. Defaults to "RNA"
 #' @param nfeatures no. of features to select for integration
 #' @param method integration method, see Seurat::indIntegrationAnchors()
-#' @param k.filter k.filtered, see Seurat::indIntegrationAnchors(), reduce when no. of cells in samples are low.
+#' @param k.weight k.weight, see Seurat::IntegrateData(), reduce when no. of cells in samples are low.
 #' @export
-integrate_v4 <- function(x, split.by, assay = "RNA", nfeatures = 3000, method = "rpca", k.filter = 200){
+integrate_v4 <- function(x, split.by, assay = "RNA", nfeatures = 3000, method = "rpca", k.weight = 100){
     list <- SplitObject(x, split.by = split.by)
     for(i in seq_along(list)){
         list[[i]] <- SCTransform(list[[i]], vst.flavor = "v2", variable.features.n = nfeatures, assay = assay, return.only.var.genes = FALSE)
         list[[i]] <- RunPCA(list[[i]], npcs = 50, verbose = FALSE, assay = "SCT")}
     features <- SelectIntegrationFeatures(list, nfeatures = nfeatures)
     list <- PrepSCTIntegration(object.list = list, anchor.features = features)
-    anchors <- FindIntegrationAnchors(object.list = list, normalization.method = "SCT", anchor.features = features, reduction = method, k.filter = k.filter)
-    integrated <- IntegrateData(anchorset = anchors, normalization.method = "SCT", features.to.integrate = rownames(x[[assay]]))
+    anchors <- FindIntegrationAnchors(object.list = list, normalization.method = "SCT", anchor.features = features, reduction = method)
+    integrated <- IntegrateData(anchorset = anchors, normalization.method = "SCT", features.to.integrate = rownames(x[[assay]]), k.weight = k.weight)
     VariableFeatures(integrated[["SCT"]]) <- features
     VariableFeatures(integrated[["integrated"]]) <- features
     return(integrated)}

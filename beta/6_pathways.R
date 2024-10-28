@@ -357,3 +357,117 @@ pathways_to_excel <- function(x, diffexp, outdir){
     writexl::write_xlsx(sheets, outdir)
     }
 
+
+
+###
+PlotAllHeatmap <- function(gsea, top_n = NULL, only_pos = T, only_signif = F, plot_qval = F, fill_na = F, keep_col_order = F, keep_row_order = F, signif_col = "white",...){
+    
+    if(is.data.frame(gsea)){
+        stopifnot(c("cluster", "ID", "NES", "qvalue") %in% colnames(gsea))}
+
+    colname_order <- NULL
+    rowname_order <- NULL
+    if(keep_col_order){
+        colname_order <- unique(sort(gsea$cluster))}
+    if(keep_row_order){
+        rowname_order <- unique(sort(gsea$ID))}
+
+    if(length(top_n) > 0){
+        if(only_pos){
+            plot_pathways <- gsea %>%
+                group_by(cluster) %>%
+                mutate(NES = as.numeric(NES)) %>%
+                filter(NES > 0) %>%
+		        arrange(desc(NES)) %>%
+                slice_min(n = top_n, order_by = qvalue, with_ties = F) %>%
+                .$ID}
+        else{
+            plot_pathways <- gsea %>%
+                group_by(cluster) %>%
+                mutate(NES = as.numeric(NES)) %>%
+		        arrange(desc(NES^2)) %>%
+                slice_min(n = top_n, order_by = qvalue, with_ties = F) %>%
+                .$ID}
+        gsea <- gsea %>%
+            filter(ID %in% plot_pathways)}
+
+    nes <- gsea %>%
+        dplyr::select(cluster, ID, NES) %>%
+        arrange(cluster) %>%
+        mutate(cluster = as.factor(cluster), NES = NES) %>%
+        complete(cluster, nesting(ID), fill = list(NES = NA)) %>%
+        pivot_wider(names_from = cluster, values_from = NES) %>%
+        column_to_rownames("ID")
+
+    qval <- gsea %>%
+        dplyr::select(cluster, ID, qvalue) %>%
+        arrange(cluster) %>%
+        mutate(cluster = as.factor(cluster), qvalue = qvalue) %>%
+        complete(cluster, nesting(ID), fill = list(qvalue = 1)) %>%
+        pivot_wider(names_from = cluster, values_from = qvalue) %>%
+        column_to_rownames("ID")
+    
+    if(only_signif){
+        keep_signif <- rownames(qval)[which(rowSums(qval < 0.05) > 0)]
+        qval <- qval[keep_signif,]
+        nes <- nes[keep_signif,]}
+
+    if(fill_na){
+        nes[is.na(nes)] <- 0}
+    if(!plot_qval){
+        qval[qval != 1] <- 1}
+
+    min <- round(min(nes, na.rm = TRUE))
+    max <- round(max(nes, na.rm = TRUE))
+    scale = max(c(-min, max))
+    col_fun = rev(brewer.pal(12,"RdBu"))
+
+    ht <- Heatmap(
+        nes,
+
+        # columns
+        show_column_names = T,
+        cluster_columns = !keep_col_order,
+        column_order = colname_order,
+        column_names_side = "top",
+        column_title_side = "top",
+        column_dend_side = "bottom",
+        column_title_gp = gpar(fontsize = 10,fontface="bold"),
+        column_names_gp = gpar(fontsize = 10,fontface="bold"),
+
+        # rows
+        show_row_names = T,
+        cluster_rows = !keep_row_order,
+        row_order = rowname_order,
+        row_names_side = "left",
+        row_title_side = "left",
+        row_dend_side = "right",
+        row_title = "Pathways",
+        row_names_max_width = unit(30, "cm"),
+        row_title_gp = gpar(fontsize = 10),
+        row_names_gp = gpar(fontsize = 8),
+
+        # rest
+        border = TRUE,
+        na_col = "black",
+        border_gp = gpar(col = "black", lwd = 3),
+        rect_gp = gpar(col = "white", lwd = 1),
+        heatmap_legend_param = list(
+            title = "NES",
+            at = c(-scale, scale),
+            legend_direction = "vertical",
+            labels = c(paste0("-", scale), paste0(" ", scale)),
+            width = unit(10, "mm")),
+        col = col_fun,
+        show_heatmap_legend = T,
+        cell_fun = function(j, i, x, y, w, h, fill) {
+            if(qval[i, j] < 0.001) {
+                grid.text("***", x, y, gp = gpar(col = signif_col))
+            } else if(qval[i, j] < 0.01) {
+                grid.text("**", x, y, gp = gpar(col = signif_col))
+            } else if(qval[i, j] < 0.05) {
+            grid.text("*", x, y, gp = gpar(col = signif_col))
+            }},
+   ...)
+   return(ht)
+}

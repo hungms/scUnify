@@ -14,18 +14,23 @@
 #' @export
 seurat_add_dandelion <- function(x, vdj, paired = T){
     vdj <- vdj %>%
-        filter(filter_contig == "False" & productive_VDJ == "T") %>%
+        filter(filter_contig == "False") %>%
         dplyr::select(!samples)
 
     if(paired){
         vdj <- vdj %>%
-            filter(chain_status == "Single pair" & productive_VDJ == "T")}
+            filter(chain_status == "Single pair" & productive_VDJ == "T")  %>%
+            as.data.frame(.)}
+
+    stopifnot(all(rownames(vdj) %in% rownames(x@meta.data)))
 
     metadata <- x@meta.data %>%
         merge(., vdj, by = 0, all.x = T) %>%
+        mutate(vdj_qc = ifelse(filter_contig == "False", "Pass", "Fail")) %>%
         group_by(clone_id) %>%
+        mutate(cellxclone = n()) %>%
+        ungroup() %>%
         mutate(
-            cellxclone = n(),
             clone_by_count = case_when(
                 cellxclone > 30 ~ "Hyperexpanded (30< X)",
                 cellxclone > 10 & cellxclone <= 30 ~ "Large (11< X ≤30)",
@@ -33,7 +38,6 @@ seurat_add_dandelion <- function(x, vdj, paired = T){
                 cellxclone >= 2 & cellxclone <=5 ~ "Small (1< X ≤5)",
                 .default = "Single (0< X ≤1)")) %>%
         mutate(clone_by_count = factor(clone_by_count, c("Single (0< X ≤1)", "Small (1< X ≤5)", "Medium (5< X ≤10)", "Large (11< X ≤30)", "Hyperexpanded (30< X)"))) %>%
-        ungroup() %>%
         mutate(clone_by_percent = cellxclone/n(),
                 clone_by_percent = case_when(
                     clone_by_percent <= 0.0001 ~ "Rare (X≤ 1e-04)",
@@ -42,7 +46,12 @@ seurat_add_dandelion <- function(x, vdj, paired = T){
                     clone_by_percent > 0.01 & clone_by_percent <= 0.1 ~ "Large (0.01< X ≤ 0.1)",
                     clone_by_percent > 0.1 ~ "Hyperexpanded (0.1< X)")) %>%
         mutate(clone_by_percent = factor(clone_by_percent, c("Rare (X≤ 1e-04)", "Small (1e-04< X ≤ 0.001)", "Medium (0.001< X ≤ 0.01)", "Large (0.01< X ≤ 0.1)", "Hyperexpanded (0.1< X)"))) %>%
-        column_to_rownames("Row.names")
+        mutate(
+            cellxclone = ifelse(clone_id == "No_contig", NA, cellxclone),
+            clone_by_percent = ifelse(clone_id == "No_contig", NA, clone_by_percent),
+            clone_by_count = ifelse(clone_id == "No_contig", NA, clone_by_count)) %>%
+        column_to_rownames("Row.names") %>%
+        as.data.frame(.)
     x@meta.data <- metadata[rownames(x@meta.data),]
     return(x)}
 
@@ -54,11 +63,11 @@ seurat_add_dandelion <- function(x, vdj, paired = T){
 #' @export
 plot_vdj_qc <- function(x, group.by = "samples"){
     plot <- x@meta.data %>%
-        group_by_at(c(group.by, "filter_contig")) %>%
+        group_by_at(c(group.by, "vdj_qc")) %>%
         summarize(count = n()) %>%
         group_by_at(group.by) %>%
         mutate(pct = count*100/sum(count)) %>%
-        ggplot(aes_string(x = group.by, y = "pct", fill = "filter_contig")) +
+        ggplot(aes_string(x = group.by, y = "pct", fill = "vdj_qc")) +
         geom_col(width = 0.85, position = "stack", col = "white") +
         guides(fill = guide_legend(title = "")) +
         theme_line() +
@@ -147,5 +156,22 @@ plot_shm <- function(x, group.by, facet.by = NULL, cols = NULL){
             facet_wrap(as.formula(paste0("~ ", facet.by)), nrow = 1) +
             facet_aes()}
 
+    return(plot)
+}
+
+
+
+plot_clone_number <- function(x, group.by, cols = NULL){
+    plot <- x@meta.data %>%
+        group_by_at(group.by) %>%
+        summarize(`clones_per_cell` = length(unique(clone_id))*100/n()) %>%
+        ggplot(aes_string(x = group.by, y = "clones_per_cell", fill = group.by)) +
+        geom_col(width = 0.85, color = "white") +
+        theme_line() +
+        theme_text() +
+        xlab(NULL) +
+        ylab("Average Clone Number")
+    if(length(cols) > 0){
+        plot <- plot + scale_fill_manual(values = cols)}
     return(plot)
 }
