@@ -13,9 +13,15 @@ dsb_normalize(
 )
 }
 \arguments{
-\item{x}{a list of seurat objects}
+\item{x}{a seurat object}
 
-\item{dir}{}
+\item{dir}{original directory}
+
+\item{denoise.counts}{denoise counts}
+
+\item{use.isotype.control}{use isotype controls}
+
+\item{isotype.control.name.vec}{isotype control name vec}
 }
 \value{
 a list of seurat objects with DSB normalised "data" in ADT assay

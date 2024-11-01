@@ -7,6 +7,7 @@
 #' @param pca reduction name for X_pca. Defaults to "pca"
 #' @param umap reduction name for X_umap. Defaults to "umap"
 #' @param assay assay name for gene expression. Defaults to "RNA"
+#' @param adt_assay assay name for ADT counts if any
 #' @param return_genes if TRUE, return genes from assays named c("CC", "BCR", "TCR", "MHC") to current assay. Defaults to TRUE
 #' @export
 convert_seurat_to_anndata <- function(x, h5ad, columns = NULL, pca = "pca", umap = "umap", snn = "RNA_snn", nn = "RNA_nn", assay = "RNA", adt_assay = NULL, return_genes = T, overwrite = F){

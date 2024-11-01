@@ -4,7 +4,7 @@
 \alias{create_seurat_object}
 \title{create_seurat_object}
 \usage{
-create_seurat_object(dir, samples, hto_str = NULL)
+create_seurat_object(dir, samples, hto_str = NULL, adt_normalize = T)
 }
 \arguments{
 \item{dir}{a vector of directories}

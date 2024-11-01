@@ -13,6 +13,7 @@ convert_seurat_to_anndata(
   snn = "RNA_snn",
   nn = "RNA_nn",
   assay = "RNA",
+  adt_assay = NULL,
   return_genes = T,
   overwrite = F
 )
@@ -29,6 +30,8 @@ convert_seurat_to_anndata(
 \item{umap}{reduction name for X_umap. Defaults to "umap"}
 
 \item{assay}{assay name for gene expression. Defaults to "RNA"}
+
+\item{adt_assay}{assay name for ADT counts if any}
 
 \item{return_genes}{if TRUE, return genes from assays named c("CC", "BCR", "TCR", "MHC") to current assay. Defaults to TRUE}
 }

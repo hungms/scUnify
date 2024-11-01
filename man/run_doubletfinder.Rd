@@ -21,8 +21,7 @@ run_doubletfinder(
 
 \item{dims}{no. of PCs, defaults to 1:10}
 
-\item{truth}{whether cell demultiplexing (ground-truth) result is available.
-Defaults to NULL, else set to metadata column with values of "Singlet" and "Doublet".}
+\item{truth}{whether cell demultiplexing (ground-truth) result is available. Defaults to NULL, else set to metadata column with values of "Singlet" and "Doublet".}
 
 \item{clusters}{metadata column containing cluster labels}
 

@@ -10,7 +10,7 @@ integrate_v4(
   assay = "RNA",
   nfeatures = 3000,
   method = "rpca",
-  k.filter = 200
+  k.weight = 100
 )
 }
 \arguments{
@@ -24,7 +24,7 @@ integrate_v4(
 
 \item{method}{integration method, see Seurat::indIntegrationAnchors()}
 
-\item{k.filter}{k.filtered, see Seurat::indIntegrationAnchors(), reduce when no. of cells in samples are low.}
+\item{k.weight}{k.weight, see Seurat::IntegrateData(), reduce when no. of cells in samples are low.}
 }
 \description{
 Wrapper function to integrate cells by samples

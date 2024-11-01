@@ -151,10 +151,10 @@ process_hto <- function(x, assay = "HTO"){
 #' Normalize CITEseq expressions by DSB normalization
 #' 
 #' @param x a seurat object
-#' @param dir 
-#' @param denoise.counts
-#' @param use.isotype.control
-#' @param isotype.control.name.vec
+#' @param dir original directory
+#' @param denoise.counts denoise counts
+#' @param use.isotype.control use isotype controls
+#' @param isotype.control.name.vec isotype control name vec
 #' @return a list of seurat objects with DSB normalised "data" in ADT assay
 #' @export
 dsb_normalize <- function(x, dir, denoise.counts = T, use.isotype.control = F, isotype.control.name.vec = NULL){
@@ -234,8 +234,7 @@ qc_report <- function(x, column, samples){
 #' @param x Seurat object
 #' @param assay assay name, defaults to "RNA"
 #' @param dims no. of PCs, defaults to 1:10
-#' @param truth whether cell demultiplexing (ground-truth) result is available. 
-#'              Defaults to NULL, else set to metadata column with values of "Singlet" and "Doublet".
+#' @param truth whether cell demultiplexing (ground-truth) result is available. Defaults to NULL, else set to metadata column with values of "Singlet" and "Doublet".
 #' @param clusters metadata column containing cluster labels
 #' @param dbr doublet rate
 #' @param ncores cores used for parallel processing, defaults to 1
@@ -300,8 +299,7 @@ run_doubletfinder <- function(x, assay = "RNA", dims = 1:10, truth = NULL, clust
 #' predict doublets with scDblFinder
 #' @param x Seurat object
 #' @param assay assay name, defaults to "RNA"
-#' @param truth whether cell demultiplexing (ground-truth) result is available. 
-#'              Defaults to NULL, else set to metadata column with values of "Singlet" and "Doublet".
+#' @param truth whether cell demultiplexing (ground-truth) result is available. Defaults to NULL, else set to metadata column with values of "Singlet" and "Doublet".
 #' @param samples metadata column containing sample labels
 #' @param clusters metadata column containing cluster labels
 #' @param dbr doublet rate
