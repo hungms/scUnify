@@ -14,8 +14,8 @@ convert_seurat_to_anndata <- function(x, h5ad, columns = NULL, pca = "pca", umap
     stopifnot(c(pca, umap) %in% names(x@reductions))
     stopifnot(c(snn, nn) %in% names(x@graphs))
 
-    x <- join_layers(x)
-    x <- clean_refmap_predicton(x)
+    #x <- join_layers(x)
+    #x <- clean_refmap_prediction(x)
 
     # downgrade to v4
     options(Seurat.object.assay.version = "v3")
@@ -32,8 +32,8 @@ convert_seurat_to_anndata <- function(x, h5ad, columns = NULL, pca = "pca", umap
     
     # convert everything else to character
     for(i in seq_along(colnames(x@meta.data))){
-        if(is.factor(x@meta.data[[i]])){
-        x@meta.data[[i]] <- as.character(x@meta.data[[i]])}}
+        if(!is.numeric(x@meta.data[[i]]) | is.integer(x@meta.data[[i]])){
+            x@meta.data[[i]] <- as.character(x@meta.data[[i]])}}
     
     # add adt
     if(length(adt_assay) > 0){
