@@ -43,7 +43,7 @@
 <span>  assay <span class="op">=</span> <span class="st">"RNA"</span>,</span>
 <span>  nfeatures <span class="op">=</span> <span class="fl">3000</span>,</span>
 <span>  method <span class="op">=</span> <span class="st">"rpca"</span>,</span>
-<span>  k.filter <span class="op">=</span> <span class="fl">200</span></span>
+<span>  k.weight <span class="op">=</span> <span class="fl">100</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -71,8 +71,8 @@
 <dd><p>integration method, see Seurat::indIntegrationAnchors()</p></dd>
 
 
-<dt id="arg-k-filter">k.filter<a class="anchor" aria-label="anchor" href="#arg-k-filter"></a></dt>
-<dd><p>k.filtered, see Seurat::indIntegrationAnchors(), reduce when no. of cells in samples are low.</p></dd>
+<dt id="arg-k-weight">k.weight<a class="anchor" aria-label="anchor" href="#arg-k-weight"></a></dt>
+<dd><p>k.weight, see Seurat::IntegrateData(), reduce when no. of cells in samples are low.</p></dd>
 
 </dl></div>
 
