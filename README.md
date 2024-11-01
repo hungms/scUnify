@@ -7,7 +7,7 @@ For comprehensive applications of the functions/modules in real single-cell data
 ```ruby
 if (!require("devtools", quietly = TRUE))
     install.packages("devtools")
-remotes::install_github("mshung229/scUnify", dependencies=FALSE)
+remotes::install_github("hungms/scUnify", dependencies=FALSE)
 ```
 
 ## Dependencies
@@ -27,7 +27,7 @@ if (!require("BiocManager", quietly = TRUE))
 BiocManager::install(bioc)
 
 ### Install Github packages
-git <- c("chris-mcginnis-ucsf/DoubletFinder", "zqfang/MuDataSeurat")
+git <- c("chris-mcginnis-ucsf/DoubletFinder", "hungms/MuDataSeurat")
 if (!require("devtools", quietly = TRUE))
     install.packages("devtools")
 devtools::install_github(git)

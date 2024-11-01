@@ -33,3 +33,41 @@ list_to_df <- function(list){
         c(v, rep("", max_length - length(v)))})
     df <- as.data.frame(padded.list, stringsAsFactors = FALSE)
     return(df)}
+
+#' clean_refmap_prediction
+#'
+#' clean reference mapping outputs
+#' @param x Seurat Object
+#' @return Seurat Object cleaned
+#' @export
+clean_refmap_prediction <- function(x){
+    if(any(str_detect(names(x@assays), "^prediction.score"))){
+        remove <- names(x@assays)[which(str_detect(names(x@assays), "^prediction.score"))]
+        for(i in remove){
+            x[[i]] <- NULL}}
+    return(x)}
+
+#' metadata_checkpoint
+#'
+#' add checkpoint for metadata
+#' @param x Seurat Object
+#' @param dir directory storing metadata
+#' @param save save metadata as tsv
+#' @param load specific metadata.tsv to load
+#' @return Seurat Object with updated metadata file
+#' @export
+metadata_checkpoint <- function(x, dir = "seurat/0_metadata/", save = F, load = NULL){
+    if(save){
+        date <- gsub("-", "", Sys.Date())
+        write.table(x@meta.data, paste0(dir, "/", date, "_metadata.tsv"), quote = F, row.names = T, sep = "\t")}
+
+    if(length(load) == 0){
+        file <- list.files(dir)[length(list.files(dir))]
+        latest <- paste0(dir, "/", file)}
+    else if(file.exists(load)){
+        latest <- load}
+    else{stop("file does not exist")}
+    
+    x@meta.data <- read.table(latest, sep = "\t")[colnames(x),]
+    return(x)
+}

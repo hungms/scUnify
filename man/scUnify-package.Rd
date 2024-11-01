@@ -11,7 +11,7 @@ Unification of single-cell multi-modal processing and visualization tools.
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://mshung229.github.io/scUnify/}
+  \item \url{https://hungms.github.io/scUnify/}
 }
 
 }

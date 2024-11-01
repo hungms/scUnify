@@ -26,7 +26,7 @@ seurat_add_dandelion <- function(x, vdj, paired = T){
 
     metadata <- x@meta.data %>%
         merge(., vdj, by = 0, all.x = T) %>%
-        mutate(vdj_qc = ifelse(filter_contig == "False", "Pass", "Fail")) %>%
+        mutate(vdj_qc = ifelse(is.na(filter_contig), "Fail", "Pass")) %>%
         group_by(clone_id) %>%
         mutate(cellxclone = n()) %>%
         ungroup() %>%
@@ -71,6 +71,7 @@ plot_vdj_qc <- function(x, group.by = "samples"){
         geom_col(width = 0.85, position = "stack", col = "white") +
         guides(fill = guide_legend(title = "")) +
         theme_line() +
+        theme_text() +
         xlab("") +
         ylab("Proportions (%)")
     return(plot)}
