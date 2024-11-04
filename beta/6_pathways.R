@@ -471,3 +471,59 @@ PlotAllHeatmap <- function(gsea, top_n = NULL, only_pos = T, only_signif = F, pl
    ...)
    return(ht)
 }
+
+
+PlotBarPlot <- function(data, group1, group2, top_n = NULL, only.signif = T){
+
+    stopifnot(all(c("NES", "qvalue", "ID") %in% colnames(data)))
+    data$NES <- as.numeric(data$NES)
+    data$qvalue <- as.numeric(data$qvalue)
+
+    if(length(top_n) > 0){
+        plot_pathways <- data %>%
+                    arrange(desc(NES^2)) %>%
+            mutate(direction = ifelse(NES > 0, "POS", "NEG")) %>%
+            group_by(direction) %>%
+            slice_min(n = top_n, order_by = qvalue, with_ties = F) %>%
+            .$ID
+
+        if(only.signif){
+            plot_pathways <- data %>%
+                filter(qvalue < 0.05) %>%
+                arrange(desc(NES^2)) %>%
+                mutate(direction = ifelse(NES > 0, "POS", "NEG")) %>%
+                group_by(direction) %>%
+                slice_min(n = top_n, order_by = qvalue, with_ties = F) %>%
+                .$ID
+        }
+
+        data <- data %>%
+            filter(ID %in% plot_pathways)}
+
+    comparison <- paste0("Enriched in ", c(group2, group1))
+    plot <- data %>%
+        mutate(direction = factor(ifelse(NES < 0, comparison[1], comparison[2]), comparison)) %>%
+        mutate(psig = case_when(
+            qvalue < 0.001 ~ "***",
+            qvalue < 0.01 ~ "**",
+            qvalue < 0.05 ~ "*",
+            .default = "")) %>%
+        ggplot(aes(x = fct_reorder(ID, NES), y = NES, fill = NES)) +
+        geom_col(aes(stroke = psig), width = 0.85, col = "black") +
+        geom_text(aes(label = psig, y = NES + 0.3 * sign(NES)), position = position_dodge(width = 0.95)) +
+        xlab("Pathways") +
+        scale_fill_distiller(palette = "RdBu") +
+        guides(
+            fill = guide_colorbar(
+                title = "NES",
+                title.position = "top",
+                direction = "vertical",
+                frame.colour = "black",
+                ticks.colour = "black",
+                order = 1)) +
+        coord_flip() +
+        theme_border() +
+        scale_x_discrete(expand=c(0.05, 0.05)) +
+        scale_y_continuous(expand = expansion(mult = c(0.1, 0.1)))
+    return(plot)
+}

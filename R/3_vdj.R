@@ -13,6 +13,8 @@
 #' @param paired if TRUE, keep cells with a single heavy and a single light chain sequence
 #' @export
 seurat_add_dandelion <- function(x, vdj, paired = T){
+    x@meta.data[colnames(vdj)[which(colnames(vdj) != "samples")]] <- NULL
+    
     vdj <- vdj %>%
         filter(filter_contig == "False") %>%
         dplyr::select(!samples)

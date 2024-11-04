@@ -532,7 +532,7 @@ calculate_cluster_similarity <- function(x, cluster, assay = "RNA", slot = "data
 #' @param annotations a vector of cluster annotations for ComplexHeatmap::HeatmapAnnotation(). Defaults to colnames(correlation.matrix)
 #' @param color colors for cluster annotations
 #' @export
-plot_similarity_heatmap <- function(correlation.matrix, annotations = colnames(correlation.matrix), color = NULL){
+plot_similarity_heatmap <- function(correlation.matrix, annotations = colnames(correlation.matrix), color = NULL, cluster = T){
 
     col_fun = rev(brewer.pal(12,"RdBu"))
     if(all(annotations == colnames(correlation.matrix))){
@@ -552,8 +552,8 @@ plot_similarity_heatmap <- function(correlation.matrix, annotations = colnames(c
         border_gp = gpar(col = "black", lwd = 3),
         rect_gp = gpar(col = "white", lwd = 1),
         row_title_gp = gpar(fontsize = 12),
-        cluster_rows = T,
-        cluster_columns = T,
+        cluster_rows = cluster,
+        cluster_columns = cluster,
         heatmap_legend_param = list(
             title = "Pearson\nCorrelation",
             legend_direction = "vertical")

@@ -119,7 +119,7 @@ scUMAP <- function(x, reduction = "umap", group.by, cols = NULL, count = F, pt.s
 scDotPlot <- function(
     x, group.by, split.by = NULL, features,
     assay = "RNA", slot = "data", scale = T,
-    palette = "magma", direction = 1, diffexp = NULL,
+    palette = "RdBu", direction = -1, diffexp = NULL,
     coord_flip = T, unique = F){
 
     # convert genelists to vector, and filter unique genes if necessary
