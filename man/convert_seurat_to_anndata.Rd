@@ -8,13 +8,13 @@ convert_seurat_to_anndata(
   x,
   h5ad,
   columns = NULL,
-  reductions = c("umap", "pca"),
-  snn = "RNA_snn",
-  nn = "RNA_nn",
+  umap = "umap",
+  pca = NULL,
+  snn = NULL,
+  nn = NULL,
   assay = "RNA",
   adt_assay = NULL,
-  return_genes = T,
-  overwrite = F
+  return_genes = T
 )
 }
 \arguments{
@@ -24,15 +24,15 @@ convert_seurat_to_anndata(
 
 \item{columns}{a vector of metadata columns to keep. Defaults to NULL to keep all columns}
 
+\item{umap}{reduction name for X_umap. Defaults to "umap"}
+
+\item{pca}{reduction name for X_pca. Defaults to "pca"}
+
 \item{assay}{assay name for gene expression. Defaults to "RNA"}
 
 \item{adt_assay}{assay name for ADT counts if any}
 
 \item{return_genes}{if TRUE, return genes from assays named c("CC", "BCR", "TCR", "MHC") to current assay. Defaults to TRUE}
-
-\item{pca}{reduction name for X_pca. Defaults to "pca"}
-
-\item{umap}{reduction name for X_umap. Defaults to "umap"}
 }
 \description{
 Convert Seurat to AnnData with SeuratDisk::Convert()

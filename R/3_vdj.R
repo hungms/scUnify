@@ -13,7 +13,7 @@
 #' @param paired if TRUE, keep cells with a single heavy and a single light chain sequence
 #' @export
 seurat_add_dandelion <- function(x, vdj, paired = T){
-    x@meta.data[colnames(vdj)[which(colnames(vdj) != "samples")]] <- NULL
+    x@meta.data[c(colnames(vdj)[which(colnames(vdj) != "samples")], "cellxclone", "clone_by_count", "clone_by_percent")] <- NULL
     
     vdj <- vdj %>%
         filter(filter_contig == "False") %>%
@@ -23,6 +23,12 @@ seurat_add_dandelion <- function(x, vdj, paired = T){
         vdj <- vdj %>%
             filter(chain_status == "Single pair" & productive_VDJ == "T")  %>%
             as.data.frame(.)}
+    
+    for(i in seq_along(colnames(vdj))){
+        if(is.numeric(vdj[[i]])){
+            vdj[[i]] <- as.integer(vdj[[i]])
+        }
+    }
 
     stopifnot(all(rownames(vdj) %in% rownames(x@meta.data)))
 
@@ -39,7 +45,6 @@ seurat_add_dandelion <- function(x, vdj, paired = T){
                 cellxclone > 5 & cellxclone <= 10 ~ "Medium (5< X ≤10)",
                 cellxclone >= 2 & cellxclone <=5 ~ "Small (1< X ≤5)",
                 .default = "Single (0< X ≤1)")) %>%
-        mutate(clone_by_count = factor(clone_by_count, c("Single (0< X ≤1)", "Small (1< X ≤5)", "Medium (5< X ≤10)", "Large (11< X ≤30)", "Hyperexpanded (30< X)"))) %>%
         mutate(clone_by_percent = cellxclone/n(),
                 clone_by_percent = case_when(
                     clone_by_percent <= 0.0001 ~ "Rare (X≤ 1e-04)",
@@ -47,11 +52,12 @@ seurat_add_dandelion <- function(x, vdj, paired = T){
                     clone_by_percent > 0.001 & clone_by_percent <= 0.01 ~ "Medium (0.001< X ≤ 0.01)",
                     clone_by_percent > 0.01 & clone_by_percent <= 0.1 ~ "Large (0.01< X ≤ 0.1)",
                     clone_by_percent > 0.1 ~ "Hyperexpanded (0.1< X)")) %>%
-        mutate(clone_by_percent = factor(clone_by_percent, c("Rare (X≤ 1e-04)", "Small (1e-04< X ≤ 0.001)", "Medium (0.001< X ≤ 0.01)", "Large (0.01< X ≤ 0.1)", "Hyperexpanded (0.1< X)"))) %>%
         mutate(
             cellxclone = ifelse(clone_id == "No_contig", NA, cellxclone),
             clone_by_percent = ifelse(clone_id == "No_contig", NA, clone_by_percent),
             clone_by_count = ifelse(clone_id == "No_contig", NA, clone_by_count)) %>%
+        mutate(clone_by_count = factor(clone_by_count, c("Single (0< X ≤1)", "Small (1< X ≤5)", "Medium (5< X ≤10)", "Large (11< X ≤30)", "Hyperexpanded (30< X)"))) %>%
+        mutate(clone_by_percent = factor(clone_by_percent, c("Rare (X≤ 1e-04)", "Small (1e-04< X ≤ 0.001)", "Medium (0.001< X ≤ 0.01)", "Large (0.01< X ≤ 0.1)", "Hyperexpanded (0.1< X)"))) %>%
         column_to_rownames("Row.names") %>%
         as.data.frame(.)
     x@meta.data <- metadata[rownames(x@meta.data),]

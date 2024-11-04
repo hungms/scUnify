@@ -10,8 +10,8 @@
 #' @param adt_assay assay name for ADT counts if any
 #' @param return_genes if TRUE, return genes from assays named c("CC", "BCR", "TCR", "MHC") to current assay. Defaults to TRUE
 #' @export
-convert_seurat_to_anndata <- function(x, h5ad, columns = NULL, reductions = c("umap", "pca"), snn = "RNA_snn", nn = "RNA_nn", assay = "RNA", adt_assay = NULL, return_genes = T, overwrite = F){
-    stopifnot(all(reductions %in% names(x@reductions)))
+convert_seurat_to_anndata <- function(x, h5ad, columns = NULL, umap = "umap", pca = NULL, snn = NULL, nn = NULL, assay = "RNA", adt_assay = NULL, return_genes = T){
+    stopifnot(all(c(umap, pca) %in% names(x@reductions)))
     stopifnot(all(c(snn, nn) %in% names(x@graphs)))
 
     # downgrade to v4
@@ -29,9 +29,14 @@ convert_seurat_to_anndata <- function(x, h5ad, columns = NULL, reductions = c("u
         x@meta.data <- x@meta.data[,columns]}
     
     # convert non-numeric columns to character class
+    classlist <- c()
     for(i in seq_along(colnames(x@meta.data))){
-        if(!is.numeric(x@meta.data[[i]]) | is.integer(x@meta.data[[i]])){
+        if(is.integer(x@meta.data[[i]]) | is.numeric(x@meta.data[[i]])){
+            x@meta.data[[i]] <- ifelse(is.na(x@meta.data[[i]]), 0, x@meta.data[[i]])
+            x@meta.data[[i]] <- as.numeric(x@meta.data[[i]])}
+        if(!is.numeric(x@meta.data[[i]])){
             x@meta.data[[i]] <- as.character(x@meta.data[[i]])}}
+
     
     # add adt features to metadata
     if(length(adt_assay) > 0){
@@ -57,14 +62,17 @@ convert_seurat_to_anndata <- function(x, h5ad, columns = NULL, reductions = c("u
     # store PCA/UMAP/neighbours
     #message("storing PCA, UMAP to the appropriate reduction slot")
     DefaultAssay(x) <- assay
-    x@reductions <- x@reductions[reductions]
-    for(i in reductions){
+    x@reductions[["umap"]] <- x@reductions[[umap]]
+    x@reductions[["pca"]] <- x@reductions[[pca]]
+    x@reductions <- x@reductions[c("umap", "pca")]
+    for(i in c("umap", "pca")){
         x@reductions[[i]]@assay.used <- assay}
 
-    x@graphs[[paste0(assay, "_snn")]] <- x@graphs[[snn]]
-    x@graphs[[paste0(assay, "_nn")]] <- x@graphs[[nn]]
+    if(length(snn) > 0 & length(nn) > 0){
+        x@graphs[[paste0(assay, "_snn")]] <- x@graphs[[snn]]
+        x@graphs[[paste0(assay, "_nn")]] <- x@graphs[[nn]]}
     
-    MuDataSeurat::WriteH5AD(x, h5ad, assay=assay, scale.data = F, overwrite = overwrite) #https://github.com/zqfang/MuDataSeurat #remotes::install_github("zqfang/MuDataSeurat", dependencies = F)
+    MuDataSeurat::WriteH5AD(x, h5ad, assay=assay, scale.data = F) #https://github.com/zqfang/MuDataSeurat #remotes::install_github("zqfang/MuDataSeurat", dependencies = F)
     options(Seurat.object.assay.version = "v5")
     }
 
