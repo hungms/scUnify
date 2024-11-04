@@ -7,7 +7,8 @@
 plot_similarity_heatmap(
   correlation.matrix,
   annotations = colnames(correlation.matrix),
-  color = NULL
+  color = NULL,
+  cluster = T
 )
 }
 \arguments{
