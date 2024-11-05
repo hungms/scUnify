@@ -23,12 +23,6 @@ seurat_add_dandelion <- function(x, vdj, paired = T){
         vdj <- vdj %>%
             filter(chain_status == "Single pair" & productive_VDJ == "T")  %>%
             as.data.frame(.)}
-    
-    for(i in seq_along(colnames(vdj))){
-        if(is.numeric(vdj[[i]])){
-            vdj[[i]] <- as.integer(vdj[[i]])
-        }
-    }
 
     stopifnot(all(rownames(vdj) %in% rownames(x@meta.data)))
 
