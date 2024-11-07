@@ -17,14 +17,13 @@ create_seurat_object <- function(dir, samples, hto_str = NULL, adt_normalize = T
         mtx <- Read10X(dir[i])
 
         # add rna counts
-        message("Step 2 : Adding RNA counts")
         any.adt <- "Antibody Capture" %in% names(mtx)
         if(any.adt){rna <- mtx$`Gene Expression`}
         else{rna <- mtx}
         seu_obj <- suppressWarnings(CreateSeuratObject(as.matrix(rna), assay="RNA", min.cells = 3, min.features = 200)) # import gene expression/adt to seurat, remove cells with less than 200 features and features expressed in less than 3 cells
 
         # check for modalities
-        message("Step 3 : Check for Modalities")
+        message("Step 2 : Check for Modalities")
         if(any.adt){
             any.hto <- any(str_detect(rownames(mtx$`Antibody Capture`), hto_str))
             any.adt <- any(!(str_detect(rownames(mtx$`Antibody Capture`), hto_str)))}
@@ -34,14 +33,14 @@ create_seurat_object <- function(dir, samples, hto_str = NULL, adt_normalize = T
         hto.skip <- ifelse(any.hto, "", " --- SKIPPED")
 
        	# add hto counts
-        message(paste0("Step 4 : Adding HTO counts", hto.skip))
+        message(paste0("Step 3 : Adding HTO counts", hto.skip))
         if(any.hto){
             hash <- mtx$`Antibody Capture`[c(which(str_detect(rownames(mtx$`Antibody Capture`), hto_str))),]
             seu_obj[["HTO"]] <- CreateAssay5Object(as.matrix(hash[,colnames(seu_obj[["RNA"]]$counts)]), min.cells = 0, min.features = 0)
             }
 
        	# add adt counts
-        message(paste0("Step 5 : Adding ADT counts", adt.skip))
+        message(paste0("Step 4 : Adding ADT counts", adt.skip))
         if(any.adt){
             prot <- mtx$`Antibody Capture`
             if(any.hto){
@@ -53,7 +52,7 @@ create_seurat_object <- function(dir, samples, hto_str = NULL, adt_normalize = T
             }
 
        	# add sample id in metadata
-        message("Final Step : Creating Seurat Object")
+        message("Step 5 : Creating Seurat Object")
         seu_obj <- set_assay_keys(seu_obj)
         seu_obj@meta.data$samples <- rep(samples[i], ncol(seu_obj))
         seu_obj <- RenameCells(seu_obj, new.names = paste0(samples[i], "_", colnames(seu_obj)))
@@ -160,11 +159,16 @@ process_hto <- function(x, assay = "HTO"){
 dsb_normalize <- function(x, dir, denoise.counts = T, use.isotype.control = F, isotype.control.name.vec = NULL){
     stopifnot(length(x) == length(dir))
     raw.dir <- gsub("/outs/.*", "/outs/multi/count/raw_feature_bc_matrix", dir)
-    
 
     adt.cell <- Read10X(dir)[["Antibody Capture"]][rownames(x[["ADT"]]),]
     adt.raw <- Read10X(raw.dir)[["Antibody Capture"]][rownames(x[["ADT"]]),]
-    adt.raw <- adt.raw[, -c(which(colnames(adt.raw) %in% colnames(adt.cell)))]
+    
+    keep1 <- rownames(adt.cell)[which(apply(adt.cell, 1, max) > 10)]
+    keep2 <- rownames(adt.raw)[which(apply(adt.raw, 1, max) > 10)]
+    keep <- intersect(keep1, keep2)
+    
+    adt.cell <- adt.cell[keep,]
+    adt.raw <- adt.raw[keep, -c(which(colnames(adt.raw) %in% colnames(adt.cell)))]
     x[["ADT"]]$data = dsb::DSBNormalizeProtein(
             cell_protein_matrix = adt.cell, 
             empty_drop_matrix = adt.raw, 

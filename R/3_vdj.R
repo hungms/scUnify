@@ -131,22 +131,21 @@ plot_vdj <- function(x, group.by, facet.by = NULL, variable = "isotype"){
 #' @param group.by column to group cells by
 #' @param facet.by variable to facet by
 #' @param cols colors
+#' @param adjust adjust 
 #' @export
-plot_shm <- function(x, group.by, facet.by = NULL, cols = NULL){
+plot_shm <- function(x, group.by, facet.by = NULL, cols = NULL, adjust = 1){
     #if(!all(unique(x@meta.data[[group.by]]) %in% names(cols))){
     #    stop('please make sure "cols" is a named vector of colors corresponding to the levels in "group.by"')}
 
-    if(length(facet.by) > 0){
-        group <- c(group.by, facet.by)}
-    else{
-        group <- group.by}
+    group <- c(group.by, facet.by)
 
     plot <- x@meta.data %>%
         filter(!is.na(mu_freq)) %>%
-        ggplot(aes_string(x = group.by, y = "mu_freq", fill = group.by)) +
-        geom_violin(trim = T, adjust = 1.5, drop = T, bw = "nrd0", scale = "width") +
+        ggplot(aes_string(x = group.by, y = "mu_freq")) +
+        geom_violin(aes_string(fill = group.by), adjust = adjust, scale = "width") +
+        geom_boxplot(width = 0.25, outliers = F) +
         guides(fill = guide_legend(title = "")) +
-        theme_line() +
+        theme_text() +
         xlab("") +
         ylab("Mutation Frequency")
 
@@ -156,8 +155,11 @@ plot_shm <- function(x, group.by, facet.by = NULL, cols = NULL){
 
     if(length(facet.by) > 0){
         plot <- plot +
+            theme_border() +
             facet_wrap(as.formula(paste0("~ ", facet.by)), nrow = 1) +
             facet_aes()}
+    else{
+        plot <- plot + theme_line()}
 
     return(plot)
 }
