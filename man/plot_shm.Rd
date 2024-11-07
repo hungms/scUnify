@@ -4,7 +4,7 @@
 \alias{plot_shm}
 \title{plot_shm}
 \usage{
-plot_shm(x, group.by, facet.by = NULL, cols = NULL)
+plot_shm(x, group.by, facet.by = NULL, cols = NULL, adjust = 1)
 }
 \arguments{
 \item{x}{Seurat object}
@@ -14,6 +14,8 @@ plot_shm(x, group.by, facet.by = NULL, cols = NULL)
 \item{facet.by}{variable to facet by}
 
 \item{cols}{colors}
+
+\item{adjust}{adjust}
 }
 \description{
 plot somatic hypermuation
