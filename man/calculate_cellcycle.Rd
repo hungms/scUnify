@@ -2,7 +2,7 @@
 % Please edit documentation in R/1_processing.R
 \name{calculate_cellcycle}
 \alias{calculate_cellcycle}
-\title{calculate_cell_cycle}
+\title{calculate_cellcycle}
 \usage{
 calculate_cellcycle(x, org = "human", remove_genes = F, assay = "RNA")
 }
