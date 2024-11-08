@@ -69,7 +69,7 @@ create_seurat_object <- function(dir, samples, hto_str = NULL, adt_normalize = T
 calculate_fractions <- function(x){
     x <- PercentageFeatureSet(x, pattern = "^[Mm][Tt]-", col.name = "pct.mt")
     x <- PercentageFeatureSet(x, pattern = "^R[Pp][SsLl]", col.name = "pct.rb")
-    x <- PercentageFeatureSet(x, pattern = "^H[B][ABDEGPQ]?\\d*$|^H[b][abdegpq]?\\d*", col.name = "pct.hb")
+    x <- PercentageFeatureSet(x, pattern = "^H[B][ABDEGMPQZ]?\\d*$|^H[b][abdegmpqz]?\\d*", col.name = "pct.hb")
     x <- PercentageFeatureSet(x, pattern = "^T[Rr][ABCDGabcdg][VDJCvdjc]", col.name = "pct.tcr")
     x <- PercentageFeatureSet(x, pattern = "^I[Gg][HKLhkl][VDJCAEMGvdjcaemg]", col.name = "pct.bcr")
     x <- PercentageFeatureSet(x, pattern =  "^HLA-|^H2-", col.name = "pct.mhc")
