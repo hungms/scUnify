@@ -332,7 +332,7 @@ run_scdblfinder <- function(x, assay = "RNA", samples, truth = NULL, clusters, d
     return(x)
 }
 
-#' calculate_cell_cycle
+#' calculate_cellcycle
 #'
 #' Calculate cell cycle score and predict cell cycle phase by Seurat
 #' @param x Seurat object
