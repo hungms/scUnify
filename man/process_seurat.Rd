@@ -7,11 +7,12 @@
 process_seurat(
   x,
   assay = "RNA",
+  nfeatures = 2000,
   dims = 1:10,
   res = 0.4,
-  reduction = NULL,
-  harmony = F,
-  group.by.vars = "samples"
+  samples = NULL,
+  vars.to.regress,
+  ...
 )
 }
 \arguments{
@@ -19,15 +20,15 @@ process_seurat(
 
 \item{assay}{assay name of gene expression. Defaults to "RNA"}
 
+\item{nfeatures}{number of variable features to use. Defaults to 2000}
+
 \item{dims}{no. of PCs to use. Defaults to 1:10}
 
 \item{res}{clustering resolution. Defaults to 0.4}
 
-\item{reduction}{reduction name if present. Defaults to NULL}
+\item{samples}{sample column}
 
-\item{harmony}{if TRUE, run Harmony integration for samples}
-
-\item{group.by.vars}{variable to integrate by if harmony = TRUE}
+\item{vars.to.regress}{variables to regress}
 }
 \description{
 Wrapper function to cluster cells by gene expression

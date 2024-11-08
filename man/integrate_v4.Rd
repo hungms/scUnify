@@ -9,6 +9,7 @@ integrate_v4(
   split.by,
   assay = "RNA",
   nfeatures = 3000,
+  vars.to.regress = NULL,
   method = "rpca",
   k.weight = 100
 )
@@ -21,6 +22,8 @@ integrate_v4(
 \item{assay}{assay name of gene expression. Defaults to "RNA"}
 
 \item{nfeatures}{no. of features to select for integration}
+
+\item{vars.to.regress}{variables to regress}
 
 \item{method}{integration method, see Seurat::indIntegrationAnchors()}
 

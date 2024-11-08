@@ -372,3 +372,57 @@ scDensityUMAP <- function(x, reduction = "umap", split.by, adjust = 1){
 
     return(plot)
 }
+
+#' plot_sc_quality
+#'
+#' quality control plot for single cell
+#' @param x Seurat object
+#' @param group.by column to group by
+#' @param assay assay to use
+#' @param cols colors
+#' @export
+plot_sc_quality <- function(x, group.by, assay = "RNA", cols = NULL){
+    stopifnot(all(c(paste0("nFeature_", assay), paste0("nCount_", assay), "pct.mt", "pct.rb") %in% colnames(x@meta.data)))
+    p1 <- x@meta.data %>%
+        ggplot(aes_string(x = group.by, y = paste0("nFeature_", assay), fill = group.by)) +
+        geom_violin(scale = "width") +
+        scale_fill_manual(values = cols) +
+        guides(fill = guide_none()) +
+        xlab("") +
+        ylab(paste0("nFeature_", assay)) +
+        theme_line() +
+        theme_text()
+
+    p2 <- x@meta.data %>%
+        ggplot(aes_string(x = group.by, y = paste0("nCount_", assay), fill = group.by)) +
+        geom_violin(scale = "width") +
+        scale_fill_manual(values = cols) +
+        guides(fill = guide_none()) +
+        xlab("") +
+        ylab(paste0("nCount_", assay)) +
+        theme_line() +
+        theme_text()
+
+    p3 <- x@meta.data %>%
+        ggplot(aes_string(x = group.by, y = paste0("pct.mt"), fill = group.by)) +
+        geom_violin(scale = "width") +
+        scale_fill_manual(values = cols) +
+        guides(fill = guide_none()) +
+        xlab("") +
+        ylab("Mitochondrial\nFraction (%)") +
+        theme_line() +
+        theme_text()
+
+    p4 <- x@meta.data %>%
+        ggplot(aes_string(x = group.by, y = paste0("pct.rb"), fill = group.by)) +
+        geom_violin(scale = "width") +
+        scale_fill_manual(values = cols) +
+        guides(fill = guide_none()) +
+        xlab("") +
+        ylab("Ribosomal\nFraction (%)") +
+        theme_line() +
+        theme_text()
+    
+    plot <- plot_grid(p1, p2, p3, p4, ncol = 2)
+    return(plot)
+}

@@ -71,3 +71,21 @@ metadata_checkpoint <- function(x, dir = "seurat/0_metadata/", save = F, load = 
     x@meta.data <- read.table(latest, sep = "\t")[colnames(x),]
     return(x)
 }
+
+#' calculate_10x_dbr
+#'
+#' calculate doublet rate for 10x sequencing runs
+#' @param ncells number of cells captured
+#' @return a vector of doublet rates
+#' @export
+calculate_10x_dbr <- function(ncells){
+    
+    cells <- c(500, seq(1000, 10000, 1000))
+    percent <- c(0.004, seq(0.008, 0.08, 0.008))
+    dbrate <- data.frame(cells, percent)
+    model <- lm(percent ~ poly(cells, 3, raw = TRUE), data = dbrate)
+    p <- data.frame(cells = ncells)
+    predictions <- model %>% predict(p)
+
+    return(predictions)
+}

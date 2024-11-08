@@ -254,6 +254,8 @@ run_doubletfinder <- function(x, assay = "RNA", dims = 1:10, truth = NULL, clust
 
     if(str_detect(assay, "SCT")){
         sct <- TRUE}
+    else{
+        sct <- FALSE}
 
     if(length(truth) == 0){
         message("Step 1 : No ground truth")
@@ -336,9 +338,9 @@ run_scdblfinder <- function(x, assay = "RNA", samples, truth = NULL, clusters, d
 #' @param x Seurat object
 #' @param org organism, either "human" or "mouse"
 #' @param remove_genes If TRUE, remove genes from current assay after calculating cell cycle phase. Defaults to FALSE 
-#' @param orig.assay assay name, defaults to "RNA"
+#' @param assay assay name, defaults to "RNA"
 #' @export
-calculate_cellcycle <- function(x, org = "human", remove_genes = F, orig.assay = "RNA"){
+calculate_cellcycle <- function(x, org = "human", remove_genes = F, assay = "RNA"){
 
     if(!org %in% c("human", "mouse")){
         stop('organism must be either "human" or "mouse"')}
@@ -351,7 +353,7 @@ calculate_cellcycle <- function(x, org = "human", remove_genes = F, orig.assay =
     x <- CellCycleScoring(x, s.features = sgenes, g2m.features = g2mgenes, set.ident = F, assay = orig.assay)
     
     if(remove_genes){
-        x <- remove_genes(x, features = c(sgenes, g2mgenes), orig.assay = orig.assay, new.assay = "CC")}
+        x <- remove_genes(x, features = c(sgenes, g2mgenes), orig.assay = assay, new.assay = "CC")}
     return(x)    
     }
 
@@ -423,32 +425,38 @@ remove_vdj_genes <- function(x, bcr = T, tcr = T, orig.assay = "RNA"){
 #' Wrapper function to cluster cells by gene expression
 #' @param x Seurat object
 #' @param assay assay name of gene expression. Defaults to "RNA"
+#' @param nfeatures number of variable features to use. Defaults to 2000
 #' @param dims no. of PCs to use. Defaults to 1:10
 #' @param res clustering resolution. Defaults to 0.4
-#' @param reduction reduction name if present. Defaults to NULL
-#' @param harmony if TRUE, run Harmony integration for samples
-#' @param group.by.vars variable to integrate by if harmony = TRUE
+#' @param samples sample column
+#' @param vars.to.regress variables to regress
 #' @export
-process_seurat <- function(x, assay = "RNA", dims = 1:10, res = 0.4, reduction = NULL, harmony = F, group.by.vars = "samples"){
+process_seurat <- function(x, assay = "RNA", nfeatures = 2000, dims = 1:10, res = 0.4, samples = NULL, vars.to.regress, ...){
     DefaultAssay(x) <- assay
-    if(!"data" %in% Layers(x, assay = assay)){
-        x <- NormalizeData(x, verbose = F)}
-    if(length(reduction) == 0){
-        x <- FindVariableFeatures(x)
-        x <- ScaleData(x, verbose = F)
-        x <- RunPCA(x, verbose = F)
-        reduction <- "pca"}
-    if(harmony){
-        stopifnot(length(group.by.vars) == 1)
-        x <- RunHarmony(x, reduction.use = reduction, group.by.vars = group.by.vars, verbose = F)
-        reduction <- "harmony"}
-    print(ElbowPlot(x, reduction = reduction))
-    x <- RunUMAP(x, dims = dims, reduction = reduction, verbose = F)
-    x <- FindNeighbors(x, dims = dims, reduction = reduction, verbose = F)
+    if(length(samples) == 0){
+        x <- SCTransform(x, vst.flavor = "v2", 
+            variable.features.n = nfeatures, 
+            assay = assay, 
+            vars.to.regress = vars.to.regress)}
+    else{
+        list <- SplitObject(x, split.by = samples)
+        for(i in seq_along(list)){
+            list[[i]] <- SCTransform(
+                list[[i]], 
+                vst.flavor = "v2", 
+                variable.features.n = nfeatures, 
+                assay = assay, 
+                vars.to.regress = vars.to.regress, 
+                return.only.var.genes = FALSE)}
+        VariableFeatures(x) <- SelectIntegrationFeatures(list)}
+    x <- RunPCA(x, npcs = 30)
+    print(ElbowPlot(x, reduction = "pca"))
+    x <- RunUMAP(x, dims = dims, reduction = "pca", verbose = F)
+    x <- FindNeighbors(x, dims = dims, reduction = "pca", verbose = F)
     x <- FindClusters(x, resolution = res, verbose = F)
-    print(scUMAP(x, reduction = "umap", group.by = "seurat_clusters", cols = kelly))
-    if(harmony){
-        print(scUMAP(x, reduction = "umap", group.by = group.by.vars, cols = kelly))}
+    print(scUMAP(x, reduction = "umap", group.by = "seurat_clusters"))
+    if(!length(samples) == 0){
+        print(scUMAP(x, reduction = "umap", group.by = "samples"))}
     return(x)}
 
 #' integrate_v4
@@ -458,13 +466,14 @@ process_seurat <- function(x, assay = "RNA", dims = 1:10, res = 0.4, reduction =
 #' @param split.by variable to split object by
 #' @param assay assay name of gene expression. Defaults to "RNA"
 #' @param nfeatures no. of features to select for integration
+#' @param vars.to.regress variables to regress
 #' @param method integration method, see Seurat::indIntegrationAnchors()
 #' @param k.weight k.weight, see Seurat::IntegrateData(), reduce when no. of cells in samples are low.
 #' @export
-integrate_v4 <- function(x, split.by, assay = "RNA", nfeatures = 3000, method = "rpca", k.weight = 100){
+integrate_v4 <- function(x, split.by, assay = "RNA", nfeatures = 3000, vars.to.regress = NULL, method = "rpca", k.weight = 100){
     list <- SplitObject(x, split.by = split.by)
     for(i in seq_along(list)){
-        list[[i]] <- SCTransform(list[[i]], vst.flavor = "v2", variable.features.n = nfeatures, assay = assay, return.only.var.genes = FALSE)
+        list[[i]] <- SCTransform(list[[i]], vst.flavor = "v2", variable.features.n = nfeatures, assay = assay, vars.to.regress = vars.to.regress, return.only.var.genes = FALSE)
         list[[i]] <- RunPCA(list[[i]], npcs = 50, verbose = FALSE, assay = "SCT")}
     features <- SelectIntegrationFeatures(list, nfeatures = nfeatures)
     list <- PrepSCTIntegration(object.list = list, anchor.features = features)

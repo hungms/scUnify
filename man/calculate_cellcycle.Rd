@@ -4,7 +4,7 @@
 \alias{calculate_cellcycle}
 \title{calculate_cell_cycle}
 \usage{
-calculate_cellcycle(x, org = "human", remove_genes = F, orig.assay = "RNA")
+calculate_cellcycle(x, org = "human", remove_genes = F, assay = "RNA")
 }
 \arguments{
 \item{x}{Seurat object}
@@ -13,7 +13,7 @@ calculate_cellcycle(x, org = "human", remove_genes = F, orig.assay = "RNA")
 
 \item{remove_genes}{If TRUE, remove genes from current assay after calculating cell cycle phase. Defaults to FALSE}
 
-\item{orig.assay}{assay name, defaults to "RNA"}
+\item{assay}{assay name, defaults to "RNA"}
 }
 \description{
 Calculate cell cycle score and predict cell cycle phase by Seurat
