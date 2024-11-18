@@ -20,7 +20,7 @@ create_seurat_object <- function(dir, samples, hto_str = NULL, adt_normalize = T
         any.adt <- "Antibody Capture" %in% names(mtx)
         if(any.adt){rna <- mtx$`Gene Expression`}
         else{rna <- mtx}
-        seu_obj <- suppressWarnings(CreateSeuratObject(as.matrix(rna), assay="RNA", min.cells = 3, min.features = 200)) # import gene expression/adt to seurat, remove cells with less than 200 features and features expressed in less than 3 cells
+        seu_obj <- suppressWarnings(CreateSeuratObject(as(rna, "sparseMatrix"), assay="RNA", min.cells = 3, min.features = 200)) # import gene expression/adt to seurat, remove cells with less than 200 features and features expressed in less than 3 cells
 
         # check for modalities
         message("Step 2 : Check for Modalities")
@@ -36,7 +36,7 @@ create_seurat_object <- function(dir, samples, hto_str = NULL, adt_normalize = T
         message(paste0("Step 3 : Adding HTO counts", hto.skip))
         if(any.hto){
             hash <- mtx$`Antibody Capture`[c(which(str_detect(rownames(mtx$`Antibody Capture`), hto_str))),]
-            seu_obj[["HTO"]] <- CreateAssay5Object(as.matrix(hash[,colnames(seu_obj[["RNA"]]$counts)]), min.cells = 0, min.features = 0)
+            seu_obj[["HTO"]] <- CreateAssay5Object(as(hash[,colnames(seu_obj[["RNA"]]$counts)], "sparseMatrix"), min.cells = 0, min.features = 0)
             }
 
        	# add adt counts
@@ -45,10 +45,9 @@ create_seurat_object <- function(dir, samples, hto_str = NULL, adt_normalize = T
             prot <- mtx$`Antibody Capture`
             if(any.hto){
                 prot <- prot[-c(which(str_detect(rownames(prot), hto_str))),]}
-            seu_obj[["ADT"]] <- CreateAssay5Object(as.matrix(prot[,colnames(seu_obj[["RNA"]]$counts)]), min.cells = 0, min.features = 0)
+            seu_obj[["ADT"]] <- CreateAssay5Object(as(prot[,colnames(seu_obj[["RNA"]]$counts)], "sparseMatrix"), min.cells = 0, min.features = 0)
             if(adt_normalize){
                 seu_obj <- dsb_normalize(seu_obj, dir = dir[i], denoise.counts = T, use.isotype.control = F, isotype.control.name.vec = NULL)}
-
             }
 
        	# add sample id in metadata
@@ -169,12 +168,13 @@ dsb_normalize <- function(x, dir, denoise.counts = T, use.isotype.control = F, i
     
     adt.cell <- adt.cell[keep,]
     adt.raw <- adt.raw[keep, -c(which(colnames(adt.raw) %in% colnames(adt.cell)))]
-    x[["ADT"]]$data = dsb::DSBNormalizeProtein(
+    out = dsb::DSBNormalizeProtein(
             cell_protein_matrix = adt.cell, 
             empty_drop_matrix = adt.raw, 
             denoise.counts = denoise.counts, 
             use.isotype.control = use.isotype.control,
             isotype.control.name.vec = isotype.control.name.vec)
+    x[["ADT"]]$data <- as(out, "sparseMatrix")
     
     return(x)
     }
@@ -372,14 +372,17 @@ remove_genes <- function(x, features = NULL, orig.assay = "RNA", new.assay){
 
     DefaultAssay(x) <- orig.assay
     keep <- which(rownames(x) %in% c(features))
+    message(paste0("Detected genes = ", length(keep)))
 
+    if(length(keep) <= 1){
+        stop("Detected genes <= 1, stop subsetting genes")}
 
-    feature.counts <- x[[orig.assay]]$counts[keep, colnames(x)]
-    new.counts <- x[[orig.assay]]$counts[-c(keep), colnames(x)]
+    feature.counts <- x[[orig.assay]]$counts[keep,]
+    new.counts <- x[[orig.assay]]$counts[-c(keep),]
 
     if("data" %in% Layers(x, assay = orig.assay)){
-        feature.data <- x[[orig.assay]]$data[keep, colnames(x)]
-        new.data <- x[[orig.assay]]$data[-c(keep), colnames(x)]
+        feature.data <- x[[orig.assay]]$data[keep,]
+        new.data <- x[[orig.assay]]$data[-c(keep),]
         x[[new.assay]] <- CreateAssay5Object(counts = as(feature.counts, "sparseMatrix"), data = as(feature.data, "sparseMatrix"), min.features = 0, min.cells = 0)
         x[[orig.assay]] <- CreateAssay5Object(counts = as(new.counts, "sparseMatrix"), data = as(new.data, "sparseMatrix"), min.features = 0, min.cells = 0)}
     else{
@@ -466,21 +469,24 @@ process_seurat <- function(x, assay = "RNA", nfeatures = 2000, dims = 1:10, res 
 #' @param split.by variable to split object by
 #' @param assay assay name of gene expression. Defaults to "RNA"
 #' @param nfeatures no. of features to select for integration
+#' @param npcs no. of PCs to computec
 #' @param vars.to.regress variables to regress
 #' @param method integration method, see Seurat::indIntegrationAnchors()
 #' @param k.weight k.weight, see Seurat::IntegrateData(), reduce when no. of cells in samples are low.
 #' @export
-integrate_v4 <- function(x, split.by, assay = "RNA", nfeatures = 3000, vars.to.regress = NULL, method = "rpca", k.weight = 100){
+integrate_v4 <- function(x, split.by, assay = "RNA", nfeatures = 3000, npcs = 50, vars.to.regress = NULL, method = "rpca", k.weight = 100){
+    options(Seurat.object.assay.version = "v4")
     list <- SplitObject(x, split.by = split.by)
     for(i in seq_along(list)){
         list[[i]] <- SCTransform(list[[i]], vst.flavor = "v2", variable.features.n = nfeatures, assay = assay, vars.to.regress = vars.to.regress, return.only.var.genes = FALSE)
-        list[[i]] <- RunPCA(list[[i]], npcs = 50, verbose = FALSE, assay = "SCT")}
+        list[[i]] <- RunPCA(list[[i]], verbose = FALSE, assay = "SCT", npcs = npcs)}
     features <- SelectIntegrationFeatures(list, nfeatures = nfeatures)
     list <- PrepSCTIntegration(object.list = list, anchor.features = features)
     anchors <- FindIntegrationAnchors(object.list = list, normalization.method = "SCT", anchor.features = features, reduction = method)
     integrated <- IntegrateData(anchorset = anchors, normalization.method = "SCT", features.to.integrate = rownames(x[[assay]]), k.weight = k.weight)
     VariableFeatures(integrated[["SCT"]]) <- features
     VariableFeatures(integrated[["integrated"]]) <- features
+    options(Seurat.object.assay.version = "v5")
     return(integrated)}
 
 

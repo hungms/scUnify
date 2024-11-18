@@ -4,19 +4,12 @@
 \alias{convert_human_to_mouse_seurat}
 \title{convert_human_to_mouse_seurat}
 \usage{
-convert_human_to_mouse_seurat(
-  x,
-  orig.assay = "RNA",
-  new.assay = "RNA.MM",
-  unique = T
-)
+convert_human_to_mouse_seurat(x, assay = "RNA", unique = T)
 }
 \arguments{
 \item{x}{Seurat object}
 
-\item{orig.assay}{Original assay name}
-
-\item{new.assay}{New assay name}
+\item{assay}{assay to use}
 
 \item{unique}{Whether to disable one-to-many MGI gene symbols to be returned. Defaults to TRUE to disable one-to-many mapping (TRUE)}
 }

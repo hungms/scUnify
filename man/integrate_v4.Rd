@@ -9,6 +9,7 @@ integrate_v4(
   split.by,
   assay = "RNA",
   nfeatures = 3000,
+  npcs = 50,
   vars.to.regress = NULL,
   method = "rpca",
   k.weight = 100
@@ -22,6 +23,8 @@ integrate_v4(
 \item{assay}{assay name of gene expression. Defaults to "RNA"}
 
 \item{nfeatures}{no. of features to select for integration}
+
+\item{npcs}{no. of PCs to computec}
 
 \item{vars.to.regress}{variables to regress}
 

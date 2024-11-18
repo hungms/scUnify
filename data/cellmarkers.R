@@ -1,6 +1,3 @@
-bcr.string <- "^I[Gg][HKLhkl][VDJCAEMGvdjcaemg]|^AC233755"
-tcr.string <- "^T[Rr][ABCDGabcdg][VDJCvdjc]"
-
 ## All Immune Cells
 immune.mm <- list(
     Immune = c("Ptprc"),
@@ -21,8 +18,6 @@ immune.hs <- list(
     Dendritic = c("CST3", "ITGAX"),
     Monocytes = c("LYZ2", "ITGAM", "CD14"),
     Cycling = c("MKI67", "PCNA", "TOP2A"))
-
-## T Cells
 
 ## B Cells
 b.mm <- list(

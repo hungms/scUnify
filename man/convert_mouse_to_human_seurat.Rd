@@ -4,19 +4,12 @@
 \alias{convert_mouse_to_human_seurat}
 \title{convert_mouse_to_human_seurat}
 \usage{
-convert_mouse_to_human_seurat(
-  x,
-  orig.assay = "RNA",
-  new.assay = "RNA.HS",
-  unique = T
-)
+convert_mouse_to_human_seurat(x, assay = "RNA", unique = T)
 }
 \arguments{
 \item{x}{Seurat object}
 
-\item{orig.assay}{Original assay name}
-
-\item{new.assay}{New assay name}
+\item{assay}{assay to use}
 
 \item{unique}{Whether to disable one-to-many HGNC gene symbols to be returned. Defaults to TRUE to disable one-to-many mapping}
 }
