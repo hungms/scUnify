@@ -62,45 +62,72 @@ umap_aes <- function(){
             axis.ticks.y=element_blank(),
             aspect.ratio = 1))}
 
-#' scUMAP
+#' plot_umap
 #'
 #' Plot UMAP from Seurat object
 #' @param x Seurat object
 #' @param reduction reduction name, defaults to "umap"
 #' @param group.by metadata column to group by 
+#' @param split.by metadata column to split by
 #' @param cols a vector of colors, defaults to NULL
-#' @param count If TRUE, count the no. of cells for each group. Defaults to FALSE
-#' @param pt.size size of each cell/point on UMAP
+#' @param count display no. of cells if TRUE
+#' @param pt.size geom_point size
 #' @param legend.ncol no. of columns for group.by keys in legend
-#' @param ... arguments for Seurat::DimPlot()
+#' @param shuffle shuffle points
 #' @export
-scUMAP <- function(x, reduction = "umap", group.by, cols = NULL, count = F, pt.size = NULL, legend.ncol = 1, ...){
+plot_umap <- function(x, reduction = "umap", group.by, split.by = NULL, cols = NULL, count = T, pt.size = 0.5, legend.ncol = 1, shuffle = F){
+    umap <- as.data.frame(Embeddings(x@reductions[[reduction]]))
+    colnames(umap) <- c("UMAP1", "UMAP2")
+    umap$group <- x@meta.data[[group.by]]
+    umap$group <- factor(umap$group, levels(x@meta.data[[group.by]]))
+
     if(count){
-        count.labels <- table(x@meta.data[[group.by]])
-        count.labels <- as.factor(paste0(names(count.labels), " (", count.labels, ")"))
-        count.labels <- unname(count.labels)}
-    else{
-        if(!is.factor((x@meta.data[[group.by]]))){
-            x@meta.data[[group.by]] <- factor(x@meta.data[[group.by]], sort(unique(x@meta.data[[group.by]])))}
-        count.labels <- levels(x@meta.data[[group.by]])}
+        umap <- umap %>%
+            group_by(group) %>%
+            mutate(groupc = factor(paste0(group, " (", n(), ") "))) %>%
+            ungroup() %>%
+            arrange(group) %>%
+            mutate(group = factor(groupc, unique(groupc)))}
 
-    plotlist <- DimPlot(x, reduction = reduction, group.by = group.by, cols = cols, pt.size = pt.size, combine = F, ...)
-    
-    for(i in seq_along(plotlist)){
-        plotlist[[i]] <- plotlist[[i]] +
-            scale_color_discrete(labels = count.labels) +
-            guides(color = guide_legend(title = "", title.position = "top", ncol = legend.ncol, override.aes = list(size=3))) +
-	        ggtitle("") +
-            umap_aes()}
 
-    if(length(plotlist) == 1){
-        plotlist <- plotlist[[1]]
-        if(length(cols) > 0){
-            plotlist <- plotlist + scale_color_manual(values = cols, labels = count.labels)}}
+    if(length(split.by) > 0){
+        umap$split <- x@meta.data[[split.by]]
+        umap$split <- factor(umap$split, levels(x@meta.data[[split.by]]))}
 
-    return(plotlist)}
+    if(shuffle){
+        umap <- umap %>% sample_frac(1)}
 
-#' scDotPlot
+    plot <- ggplot(umap, aes(x = UMAP1, y = UMAP2)) +
+        geom_point(aes(color = group), size = pt.size) +
+        guides(color = guide_legend(title = "", override.aes = list(size = 3), ncol = legend.ncol)) +
+        scale_x_continuous(expand = c(0.05, 0.05)) +
+        scale_y_continuous(expand = c(0.05, 0.05)) +
+        umap_aes() +
+        facet_aes() +
+        theme(
+            axis.title.x = element_text(size = 12),
+            axis.title.y = element_text(size = 12),
+            strip.text = element_text(face = "bold", size = 14))
+
+    # count
+    if(count){
+        dflabel <- umap %>%
+            summarize(count = paste0("n = ", n()))
+        dflabel[["UMAP1"]] <- max(umap[["UMAP1"]])
+        dflabel[["UMAP2"]] <- min(umap[["UMAP2"]])
+        plot <- plot + 
+            geom_text(data = dflabel, aes(label = count), color = "black", vjust="inward", hjust="inward")}
+    if(length(split.by) > 0){
+        plot <- plot + 
+            facet_wrap(~split, nrow = 1)}
+    if(length(cols) > 0){ # & all(unique(umap$group) %in% names(cols))
+        names(cols) <- levels(umap$group)
+        plot <- plot + scale_color_manual(values = cols)}
+    return(plot)
+}
+
+
+#' plot_dotplot
 #'
 #' Plot DotPlot from Seurat object
 #' @param x Seurat object
@@ -116,7 +143,7 @@ scUMAP <- function(x, reduction = "umap", group.by, cols = NULL, count = F, pt.s
 #' @param coord_flip If TRUE, plot features on y-axis. Defaults to TRUE
 #' @param unique If TRUE, do not repeat feature names. Defaults to FALSE
 #' @export
-scDotPlot <- function(
+plot_dotplot <- function(
     x, group.by, split.by = NULL, features,
     assay = "RNA", slot = "data", scale = T,
     palette = "RdBu", direction = -1, diffexp = NULL,
@@ -312,7 +339,7 @@ annotate_diffexp <- function(expdf, diffexp, split.by = NULL){
     return(expdf)
     }
 
-#' scFeaturePlot
+#' plot_feature
 #'
 #' Plot FeaturePlot from Seurat object
 #' @param x Seurat object
@@ -323,7 +350,7 @@ annotate_diffexp <- function(expdf, diffexp, split.by = NULL){
 #' @param plot If TRUE, plot with cowplot::plot_grid(). Defaults to FALSE to return a list of ggplot objects
 #' @param ... arguments for Seurat::FeaturePlot()
 #' @export
-scFeaturePlot <- function(x, assay = "RNA", features, palette = "viridis", direction = 1, ncol, plot = F, ...){
+plot_feature <- function(x, assay = "RNA", features, palette = "viridis", direction = 1, ncol, plot = F, ...){
     suppressMessages({
         DefaultAssay(x) <- assay
         plotlist <- FeaturePlot(x, features = features, ncol = ncol, combine = F, ...)
@@ -339,15 +366,19 @@ scFeaturePlot <- function(x, assay = "RNA", features, palette = "viridis", direc
     return(p)}
 
 
-#' scDensityUMAP
+#' plot_density_umap
 #'
 #' Plot DensityUMAP from Seurat object
 #' @param x Seurat object
 #' @param reduction reduction name, defaults to "umap"
 #' @param split.by metadata column to group by
-#' @param adjust adjust from stat_density_2d()
+#' @param adjust adjust for stat_density_2d() or geom_density_2d
+#' @param contour plot bins for geom_density_2d if TRUE
+#' @param together plot cells from all facet in background if TRUE
+#' @param count display the number of cells if TRUE
+#' @param pt.size geom_point size
 #' @export
-scDensityUMAP <- function(x, reduction = "umap", split.by, adjust = 1){
+plot_density_umap <- function(x, reduction = "umap", split.by, adjust = 1, contour = T, together = F, count = T, pt.size = 0.5){
     umap <- as.data.frame(Embeddings(x@reductions[[reduction]]))
     umap2 <- umap
     umap$split <- x@meta.data[[split.by]]
@@ -355,10 +386,8 @@ scDensityUMAP <- function(x, reduction = "umap", split.by, adjust = 1){
     colnames <- colnames(umap)
 
     plot <- ggplot(umap, aes_string(x = colnames[1], y = colnames[2])) +
-    	geom_point(data = umap2, color = "grey80", size = 2) +
-        stat_density_2d(aes(fill = ..level..), geom = "polygon", colour = "white", adjust = adjust) +
-        scale_fill_distiller(palette = "Reds", direction = 1) +
-        guides(fill = guide_none()) +
+        geom_point(color = "grey80", size = pt.size) +
+        guides(color = guide_colorbar(title = "Density"), fill = guide_none()) +
         facet_wrap(~split, ncol = ncol) +
         scale_x_continuous(expand = c(0.05, 0.05)) +
         scale_y_continuous(expand = c(0.05, 0.05)) +
@@ -370,6 +399,30 @@ scDensityUMAP <- function(x, reduction = "umap", split.by, adjust = 1){
             strip.text = element_text(face = "bold", size = 14)
             )
 
+    # count
+    if(count){
+        dflabel <- umap %>%
+            group_by(split) %>%
+            summarize(count = paste0("n = ", n())) %>%
+            ungroup()
+        dflabel[[colnames[1]]] <- max(umap[[colnames[1]]])
+        dflabel[[colnames[2]]] <- min(umap[[colnames[2]]])
+        plot <- plot + 
+            geom_text(data = dflabel, aes_string(label = "count"), vjust="inward",hjust="inward")}
+
+    # together
+    if(together){
+        plot <- plot + 
+            geom_point(data = umap2, color = "grey80", size = pt.size)}
+
+    # contour 
+    if(contour){
+        plot <- plot + 
+            geom_density_2d(aes(color = ..level..), bins = adjust)}
+    else{
+        plot <- plot + 
+            stat_density_2d(aes(fill = ..level..), geom = "polygon", colour = "white", adjust = adjust) +
+            scale_fill_distiller(palette = "Reds", direction = 1)}
     return(plot)
 }
 
@@ -424,5 +477,84 @@ plot_sc_quality <- function(x, group.by, assay = "RNA", cols = NULL){
         theme_text()
     
     plot <- plot_grid(p1, p2, p3, p4, ncol = 2)
+    return(plot)
+}
+
+
+#' plot_similarity_heatmap
+#'
+#' plot similarity heatmap between seurat clusters
+#' @param correlation.matrix a matrix of pearson correlation score
+#' @param annotations a vector of cluster annotations for ComplexHeatmap::HeatmapAnnotation(). Defaults to colnames(correlation.matrix)
+#' @param color colors for cluster annotations
+#' @export
+plot_similarity_heatmap <- function(correlation.matrix, annotations = colnames(correlation.matrix), color = NULL, cluster = T){
+
+    col_fun = rev(brewer.pal(12,"RdBu"))
+    if(all(annotations == colnames(correlation.matrix))){
+        ha <- NULL}
+    else{
+        ha <- HeatmapAnnotation(
+            Cluster = annotations,
+            col = list(Cluster = color),
+            show_annotation_name = F)}
+    ht <- Heatmap(correlation.matrix,
+        name = "Pearson\nCorrelation",
+        top_annotation = ha,
+        border = T,
+        col = col_fun,
+        na_col = "black",
+        column_title_gp = gpar(fontsize = 12),
+        border_gp = gpar(col = "black", lwd = 3),
+        rect_gp = gpar(col = "white", lwd = 1),
+        row_title_gp = gpar(fontsize = 12),
+        cluster_rows = cluster,
+        cluster_columns = cluster,
+        heatmap_legend_param = list(
+            title = "Pearson\nCorrelation",
+            legend_direction = "vertical")
+        )
+    return(ht)}
+
+#' plot_percent
+#'
+#' plot percentage for cells
+#' @param x Seurat object
+#' @param group.by column to group by
+#' @param variable variable to color by
+#' @param facet.by column to facet by
+#' @param cols vector of colors
+#' @param legend.ncol no. of legend columns
+#' @export
+plot_percent <- function(x, group.by, variable, facet.by = NULL, cols = NULL, legend.ncol = 1){
+    
+    stopifnot(c(group.by, variable, facet.by) %in% colnames(x@meta.data))
+
+    group <- c(group.by, facet.by)
+    metadata <- x@meta.data
+
+    plot <- metadata %>%
+        filter(!is.na(!!sym(variable))) %>%
+        group_by_at(c(group, variable)) %>%
+        summarize(count = n()) %>%
+        group_by_at(group) %>%
+        mutate(pct = count*100/sum(count)) %>%
+        ggplot(aes_string(x = group.by, y = "pct", fill = variable)) +
+        geom_col(width = 0.85, position = "stack", col = "white") +
+        guides(fill = guide_legend(title = "", ncol = legend.ncol)) +
+        theme_line() +
+        theme_text() +
+        xlab("") +
+        ylab("Frequency (%)")
+    
+    if(length(cols) > 0){
+        plot <- plot +
+            scale_fill_manual(values = cols)}
+
+    if(length(facet.by) == 1){
+        plot <- plot +
+            facet_wrap(as.formula(paste0("~ ", facet.by)), nrow = 1) +
+            facet_aes()}
+
     return(plot)
 }

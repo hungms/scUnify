@@ -4,12 +4,14 @@
 \alias{plot_vdj}
 \title{plot_vdj}
 \usage{
-plot_vdj(x, group.by, facet.by = NULL, variable = "isotype")
+plot_vdj(x, variable = "isotype", ...)
 }
 \arguments{
 \item{x}{Seurat object}
 
-\item{group.by}{column to group cells by}
+\item{variable}{metadata column to plot : "vdj_qc", "isotype", "clone_by_count", "clone_by_percent"}
+
+\item{...}{refer to plot_percent}
 }
 \description{
 plot vdj information for cells

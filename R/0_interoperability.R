@@ -35,6 +35,7 @@ convert_seurat_to_anndata <- function(x, h5ad, columns = NULL, umap = "umap", pc
             x@meta.data[[i]] <- ifelse(is.na(x@meta.data[[i]]), 0, x@meta.data[[i]])
             x@meta.data[[i]] <- as.numeric(x@meta.data[[i]])}
         if(!is.numeric(x@meta.data[[i]])){
+            x@meta.data[[i]] <- ifelse(is.na(x@meta.data[[i]]), "NA", x@meta.data[[i]])
             x@meta.data[[i]] <- as.character(x@meta.data[[i]])}}
 
     
@@ -75,8 +76,6 @@ convert_seurat_to_anndata <- function(x, h5ad, columns = NULL, umap = "umap", pc
     MuDataSeurat::WriteH5AD(x, h5ad, assay=assay, scale.data = F) #https://github.com/zqfang/MuDataSeurat #remotes::install_github("zqfang/MuDataSeurat", dependencies = F)
     options(Seurat.object.assay.version = "v5")
     }
-
-
 
 #' convert_seurat_to_sce
 #'

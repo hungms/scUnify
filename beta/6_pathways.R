@@ -148,10 +148,11 @@ FindAllPathways <- function(x, outdir, org = "human", rank = "avg_log2FC"){
     levels <- sort(unique(x$cluster))
     output <- list()
 
-    x <- x %>%
-        mutate(
-            pxFC = avg_log2FC*p_val_adj,
-            diff_pct = pct.1 - pct.2)
+    if(rank == "pxFC"){
+        x <- x %>%
+            mutate(
+                pxFC = avg_log2FC*p_val_adj,
+                diff_pct = pct.1 - pct.2)}
 
     for(i in seq_along(levels)){
         deglist <- x %>%
@@ -320,7 +321,7 @@ PlotAllHeatmap <- function(x, collection, top_n = NULL, only_pos = T, plot_qval 
 
 
 # pathway to excel
-pathways_to_excel <- function(x, diffexp, outdir){
+pathways_to_excel <- function(x, diffexp = NULL, outdir){
 
     sheets <- list()
     collections <- unique(gsub(".*_", "", names(x)))
@@ -334,25 +335,25 @@ pathways_to_excel <- function(x, diffexp, outdir){
             diffexp$cluster <- gsub(paste0("_", paste0(collections, collapse = "|_")), "", n)}}
 
     for(c in seq_along(collections)){
-        dplyr::selected.list <- deglist[which(str_detect(names(deglist), collections[c]))]
-        for(i in seq_along(dplyr::selected.list)){
-            cluster.id <- gsub(paste0("_", paste0(collections, collapse = "|_")), "", names(dplyr::selected.list)[i])
+        selected.list <- x[which(str_detect(names(x), collections[c]))]
+        for(i in seq_along(selected.list)){
+            cluster.id <- gsub(paste0("_", paste0(collections, collapse = "|_")), "", names(selected.list)[i])
 
             diffexp_genes <- diffexp %>%
                 filter(cluster == cluster.id & p_val_adj < 0.05) %>%
                 .$gene
 
-            edges <- str_split(dplyr::selected.list[[i]]$core_enrichment, "\\/")
+            edges <- str_split(selected.list[[i]]$core_enrichment, "\\/")
 
             for(j in seq_along(edges)){
                 edges[[j]] <- paste0(intersect(edges[[j]], diffexp_genes), collapse = "/")}
 
-            dplyr::selected.list[[i]] <- dplyr::selected.list[[i]]@result %>%
+            selected.list[[i]] <- selected.list[[i]]@result %>%
                 mutate(
                     cluster = paste0(cluster.id),
                     signif_pathway = ifelse(qvalue < 0.05, "True", "False"),
                     signif_core_enrichment = unlist(edges))}
-        sheets[[c]] <- bind_rows(dplyr::selected.list)}
+        sheets[[c]] <- bind_rows(selected.list)}
     names(sheets) <- collections
     writexl::write_xlsx(sheets, outdir)
     }
@@ -502,7 +503,7 @@ PlotBarPlot <- function(data, group1, group2, top_n = NULL, only.signif = T){
 
     comparison <- paste0("Enriched in ", c(group2, group1))
     plot <- data %>%
-        mutate(direction = factor(ifelse(NES < 0, comparison[1], comparison[2]), comparison)) %>%
+        mutate(direction = factor(ifelse(NES < 0, group2, group1), c(group2, group1))) %>%
         mutate(psig = case_when(
             qvalue < 0.001 ~ "***",
             qvalue < 0.01 ~ "**",

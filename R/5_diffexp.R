@@ -1,18 +1,3 @@
-#' intersect_genes
-#'
-#' intersect common gene names between a list of seurat objects
-#' @param x a list of Seurat object
-#' @param assay assay name
-#' @param min.cells minimum number of cells expressing the gene
-#' @export
-intersect_genes <- function(x, assay = "RNA", min.cells = 3){
-    intersect.list <- list()
-    for(i in seq_along(x)){
-        keep <- rowSums(x[[i]][[assay]]$counts >= 1) >= min.cells
-        intersect.list[[i]] <- rownames(x[[i]][[assay]]$counts)[keep]}
-    genes <- Reduce(intersect, intersect.list)
-    return(genes)}
-
 #' select_top_deg
 #'
 #' Find top differentially expressed genes for each cluster from Seurat::FindAllMarkers output.

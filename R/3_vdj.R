@@ -57,69 +57,29 @@ seurat_add_dandelion <- function(x, vdj, paired = T){
     x@meta.data <- metadata[rownames(x@meta.data),]
     return(x)}
 
-#' plot_vdj_qc
-#'
-#' plot proportion of cells that has VDJ library
-#' @param x Seurat object
-#' @param group.by column to group cells by
-#' @export
-plot_vdj_qc <- function(x, group.by = "samples"){
-    plot <- x@meta.data %>%
-        group_by_at(c(group.by, "vdj_qc")) %>%
-        summarize(count = n()) %>%
-        group_by_at(group.by) %>%
-        mutate(pct = count*100/sum(count)) %>%
-        ggplot(aes_string(x = group.by, y = "pct", fill = "vdj_qc")) +
-        geom_col(width = 0.85, position = "stack", col = "white") +
-        guides(fill = guide_legend(title = "")) +
-        theme_line() +
-        theme_text() +
-        xlab("") +
-        ylab("Proportions (%)")
-    return(plot)}
-
 #' plot_vdj
 #'
 #' plot vdj information for cells
 #' @param x Seurat object
-#' @param group.by column to group cells by
+#' @param variable metadata column to plot : "vdj_qc", "isotype", "clone_by_count", "clone_by_percent"
+#' @param ... refer to plot_percent
 #' @export
-plot_vdj <- function(x, group.by, facet.by = NULL, variable = "isotype"){
-    
-    if(length(facet.by) > 0){
-        group <- c(group.by, facet.by)}
-    else{
-	group <- group.by}
+plot_vdj <- function(x, variable = "isotype", ...){
+
+    stopifnot(variable %in% c("vdj_qc", "isotype") | str_detect(variable, "clone_by"))
 
     if(variable == "isotype"){
         cols <- c("brown", palette_list[["darjeeling_5"]][c(1,5,2,3)])
         names(cols) <- c("IgD", "IgM", "IgA", "IgG", "IgE")
-        metadata <- x@meta.data %>%
+        x@meta.data <- x@meta.data %>%
             filter(str_detect(isotype, "^Ig[DMAGE]$")) %>%
             mutate(isotype = factor(isotype, names(cols)))}
+
     else if(str_detect(variable, "clone_by")){
         cols <- palette_list[["zissou_5"]]
-        names(cols) <- levels(x@meta.data[[variable]])
-        metadata <- x@meta.data}
+        names(cols) <- levels(x@meta.data[[variable]])}
 
-    plot <- metadata %>%
-        group_by_at(c(group, variable)) %>%
-        summarize(count = n()) %>%
-        group_by_at(group) %>%
-        mutate(pct = count*100/sum(count)) %>%
-        ggplot(aes_string(x = group.by, y = "pct", fill = variable)) +
-        geom_col(width = 0.85, position = "stack", col = "white") +
-        scale_fill_manual(values = cols) +
-        guides(fill = guide_legend(title = "")) +
-        theme_line() +
-        theme_text() +
-        xlab("") +
-        ylab("Proportions (%)")
-
-    if(length(facet.by) == 1){
-        plot <- plot +
-            facet_wrap(as.formula(paste0("~ ", facet.by)), nrow = 1) +
-            facet_aes()}
+    plot <- plot_percent(x, variable = variable, ...)
 
     return(plot)
 }
@@ -164,8 +124,13 @@ plot_shm <- function(x, group.by, facet.by = NULL, cols = NULL, adjust = 1){
     return(plot)
 }
 
-
-
+#' plot_clone_number
+#'
+#' plot clone number
+#' @param x Seurat object
+#' @param group.by column to group cells by
+#' @param cols colors
+#' @export
 plot_clone_number <- function(x, group.by, cols = NULL){
     plot <- x@meta.data %>%
         group_by_at(group.by) %>%
@@ -180,3 +145,67 @@ plot_clone_number <- function(x, group.by, cols = NULL){
         plot <- plot + scale_fill_manual(values = cols)}
     return(plot)
 }
+
+#' match_cdr3
+#'
+#' match CDR3 amino acid sequence
+#' @param query query dataframe with "junction_aa_VDJ" as column
+#' @param reference reference dataframe with "junction_aa_VDJ" as column
+#' @param method method to calculate CDR3 AA distance : "hamming" or "levenshtein"
+#' @param match additional metadata columns to match
+#' @param ncores no. of cores
+#' @export
+match_cdr3 <- function(query, reference, method = "hamming", match = c("v_call_VDJ_main", "j_call_VDJ_main"), ncores = 1){
+
+  stopifnot(method %in% c("hamming", "levenshtein"))
+  stopifnot(all(match %in% c("v_call_VDJ_main", "j_call_VDJ_main", "junction_aa_VDJ")))
+  stopifnot(all(c(match, "junction_aa_VDJ") %in% colnames(query)))
+  stopifnot(all(c(match, "junction_aa_VDJ") %in% colnames(reference)))
+
+  query <- query %>%
+    dplyr::select(c(match, "junction_aa_VDJ"))
+  reference <- reference %>%
+    distinct(!!!syms(c(match, "junction_aa_VDJ")))
+
+  query$junction_aa_VDJ_length <- nchar(query$junction_aa_VDJ)
+  reference$junction_aa_VDJ_length <- nchar(reference$junction_aa_VDJ)
+
+  doParallel::registerDoParallel(ncores)
+
+  output <- foreach::foreach(i = 1:nrow(reference), .combine=rbind) %dopar% {
+
+    if(method == "hamming") {
+      tmp <- query %>% semi_join(reference[i, ], by = c(match, "junction_aa_VDJ_length")) %>% rownames_to_column("cell_barcode")
+      if(nrow(tmp) == 0) {
+        return(data.frame())}
+      cdr3 <- reference[i, ]$junction_aa_VDJ
+      tmp$dist <- as.numeric(lapply(tmp$junction_aa_VDJ, function(x){alakazam::seqDist(cdr3, x, alakazam::getAAMatrix()) / nchar(cdr3)}))
+      tmp$refseq <- cdr3
+      return(tmp)}
+
+    if(method == "levenshtein"){
+      if(length(match) > 0) {
+        tmp <- query %>% semi_join(reference[i, ], by = match) %>% rownames_to_column("cell_barcode")} 
+      else{
+        tmp <- query %>% rownames_to_column("cell_barcode")}
+      if(nrow(tmp) == 0) {
+        return(data.frame())}
+      cdr3 <- reference[i, ]$junction_aa_VDJ
+      tmp$dist <- as.numeric(lapply(tmp$junction_aa_VDJ, function(x){stringdist::stringdist(cdr3, x, method = 'lv') / max(nchar(cdr3), nchar(x))}))
+      tmp$refseq <- cdr3
+      return(tmp)}}
+
+  if(nrow(output) > 0){
+    output <- output %>% 
+      group_by(cell_barcode) %>%
+      slice_min(n = 1, order_by = dist, with_ties = F) %>%
+      ungroup() %>%
+      mutate(sim = ifelse(dist <= 1, 1-dist, 0)) %>%
+      dplyr::select(-c("dist")) %>%
+      arrange(desc(sim))
+    return(output)}
+  else{
+    stop("No matching sequences")
+  }
+}
+

@@ -1,6 +1,6 @@
 Package: scUnify
 Title: Unification of single-cell multi-modal processing and visualization tools.
-Version: 0.0.0.9000
+Version: 1.0.1
 Authors@R: 
     person(given = "Miu Shing", family = "Hung", email = "matthewhungms@gmail.com", role = c("aut", "cre"), comment = c(ORCID = "0009-0004-0412-4374"))
 Description: Unification of single-cell multi-modal processing and visualization tools.
