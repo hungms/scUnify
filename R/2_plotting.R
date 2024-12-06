@@ -62,6 +62,25 @@ umap_aes <- function(){
             axis.ticks.y=element_blank(),
             aspect.ratio = 1))}
 
+
+#' plot_hvf
+#'
+#' Plot highly variable features from Seurat object
+#' @param x Seurat object
+#' @param assay assay name
+#' @param nfeatures no. of features to select
+#' @param n number of features to label
+#' @export
+plot_hvf <- function(x, assay = "RNA", nfeatures = 3000, n = 10){
+    DefaultAssay(x) <- assay
+    x <- FindVariableFeatures(x, nfeatures = nfeatures)
+    plot <- VariableFeaturePlot(x) +
+        geom_text_repel(data = VariableFeaturePlot(x)$data %>% 
+            rownames_to_column("gene") %>%
+            slice_max(n = n, order_by = variance.standardized) %>%
+            as.data.frame(), aes(label = gene))
+    return(plot)}
+
 #' plot_umap
 #'
 #' Plot UMAP from Seurat object
