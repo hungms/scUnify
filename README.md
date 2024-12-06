@@ -10,7 +10,7 @@ if (!require("devtools", quietly = TRUE))
 remotes::install_github("hungms/scUnify", dependencies=FALSE)
 ```
 
-## Core dependencies
+## Core Dependencies
 ```ruby
 ### Install CRAN packages
 options(timeout = 500)
@@ -33,9 +33,7 @@ if (!require("devtools", quietly = TRUE))
 devtools::install_github(git)
 ```
 
-## Dependencies for additional modules :   
-
----
+## Additional Dependencies  
 ### VDJ
 ```ruby
 ## Install CRAN packages

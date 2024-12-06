@@ -23,11 +23,14 @@ navbar:
     - search
     - github
     - lightswitch
-
-#articles:
-#- title: 
-#  contents:
-#  - href: vignettes/20241203
+  components:
+    articles:
+      text: "Vignettes"
+      menu:
+      - text: "Quick Start"
+        href: articles/20241203.html
+      - text: "Ipynb"
+        href: articles/20241206.html
 
 reference:
 - title: Data Structure
@@ -76,5 +79,3 @@ reference:
   - matches("clone")
   - matches("shm")
   - matches("cdr3")
-
-

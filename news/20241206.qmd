@@ -1,5 +1,5 @@
 ---
-title: Quick Start
+title: News
 vignette: >
   %\VignetteIndexEntry{quarto vignettes}
   %\VignetteEngine{quarto::html}
@@ -10,18 +10,7 @@ knitr:
     comment: '#>'
 ---
 
-
-## Load Data & Environments
-```{r}
-library(scUnify)
-data("pbmc_small")
-head(pbmc_small)
-```
-
-
-## Quality Control
-```{r}
-
-
-```
+## 2024-12-06
+* Change "sc" prefix to "plot_" prefix for all plot functions
+* Add plot_percent function
 

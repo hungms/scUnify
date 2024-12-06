@@ -79,7 +79,10 @@ plot_umap <- function(x, reduction = "umap", group.by, split.by = NULL, cols = N
     umap <- as.data.frame(Embeddings(x@reductions[[reduction]]))
     colnames(umap) <- c("UMAP1", "UMAP2")
     umap$group <- x@meta.data[[group.by]]
-    umap$group <- factor(umap$group, levels(x@meta.data[[group.by]]))
+    if(is.factor(x@meta.data[[group.by]])){
+        umap$group <- factor(umap$group, levels(x@meta.data[[group.by]]))}
+    else{
+        umap$group <- factor(umap$group, sort(unique(x@meta.data[[group.by]])))}
 
     if(count){
         umap <- umap %>%
