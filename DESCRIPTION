@@ -10,12 +10,15 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 URL: https://hungms.github.io/scUnify/
 LazyData: true
-Depends: R (>= 4.0.0)
-Imports: 
+Depends: 
     BiocParallel,
     biomaRt,
+    celda,
     ComplexHeatmap,
     cowplot,
+    DoubletFinder,
+    dsb,
+    enrichR,
     ggh4x,
     ggpubr,
     ggrepel,
@@ -24,20 +27,18 @@ Imports:
     harmony,
     patchwork,
     qs,
+    R (>= 4.0.0),
     RColorBrewer,
     readxl,
     rstatix,
     scales,
-    Seurat (>= 5.0.0),
+    scDblFinder,
+    Seurat,
     tidyverse,
+    UCell,
     viridis,
     wesanderson,
-    writexl, 
-    celda,
-    DoubletFinder,
-    scDblFinder,
-    UCell,
-    dsb
+    writexl
 Remotes: chris-mcginnis-ucsf/DoubletFinder, hungms/MuDataSeurat
 biocViews: 
     biomaRt,
