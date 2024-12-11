@@ -47,7 +47,7 @@ create_seurat_object <- function(dir, samples, hto_str = NULL, adt_normalize = T
                 prot <- prot[-c(which(str_detect(rownames(prot), hto_str))),]}
             seu_obj[["ADT"]] <- CreateAssay5Object(as(prot[,colnames(seu_obj[["RNA"]]$counts)], "sparseMatrix"), min.cells = 0, min.features = 0)
             if(adt_normalize){
-                seu_obj <- run_dsb(seu_obj, dir = dir[i], denoise.counts = T, use.isotype.control = F, isotype.control.name.vec = NULL)}
+                seu_obj <- run_dsb(seu_obj, dir = dir[i], denoise.counts = T, use.isotype.control = F, isotype.control.name.vec = NULL, min.count = NULL)}
             }
 
        	# add sample id in metadata
@@ -65,32 +65,32 @@ create_seurat_object <- function(dir, samples, hto_str = NULL, adt_normalize = T
 #' Remove genes from current assay to new assay
 #' @param x Seurat object
 #' @param features a vector genes/features to remove
-#' @param orig.assay current assay name, defaults to "RNA"
-#' @param new.assay new assay name to store removed genes
+#' @param from.assay current assay name, defaults to "RNA"
+#' @param to.assay new assay name to store removed genes
 #' @export
-remove_genes <- function(x, features = NULL, orig.assay = "RNA", new.assay){
+remove_genes <- function(x, features = NULL, from.assay = "RNA", to.assay){
 
-    if(orig.assay == "RNA"){
+    if(from.assay == "RNA"){
         stopifnot("data" %in% Layers(x, assay = "RNA"))}
 
-    DefaultAssay(x) <- orig.assay
+    DefaultAssay(x) <- from.assay
     keep <- which(rownames(x) %in% c(features))
     message(paste0("Detected genes = ", length(keep)))
 
     if(length(keep) <= 1){
         stop("Detected genes <= 1, stop subsetting genes")}
 
-    feature.counts <- x[[orig.assay]]$counts[keep,]
-    new.counts <- x[[orig.assay]]$counts[-c(keep),]
+    feature.counts <- x[[from.assay]]$counts[keep,]
+    new.counts <- x[[from.assay]]$counts[-c(keep),]
 
-    if("data" %in% Layers(x, assay = orig.assay)){
-        feature.data <- x[[orig.assay]]$data[keep,]
-        new.data <- x[[orig.assay]]$data[-c(keep),]
-        x[[new.assay]] <- CreateAssay5Object(counts = as(feature.counts, "sparseMatrix"), data = as(feature.data, "sparseMatrix"), min.features = 0, min.cells = 0)
-        x[[orig.assay]] <- CreateAssay5Object(counts = as(new.counts, "sparseMatrix"), data = as(new.data, "sparseMatrix"), min.features = 0, min.cells = 0)}
+    if("data" %in% Layers(x, assay = from.assay)){
+        feature.data <- x[[from.assay]]$data[keep,]
+        new.data <- x[[from.assay]]$data[-c(keep),]
+        x[[to.assay]] <- CreateAssay5Object(counts = as(feature.counts, "sparseMatrix"), data = as(feature.data, "sparseMatrix"), min.features = 0, min.cells = 0)
+        x[[from.assay]] <- CreateAssay5Object(counts = as(new.counts, "sparseMatrix"), data = as(new.data, "sparseMatrix"), min.features = 0, min.cells = 0)}
     else{
-        x[[new.assay]] <- CreateAssay5Object(counts = as(feature.counts, "sparseMatrix"), min.features = 0, min.cells = 0)
-        x[[orig.assay]] <- CreateAssay5Object(counts = as(new.counts, "sparseMatrix"), min.features = 0, min.cells = 0)}
+        x[[to.assay]] <- CreateAssay5Object(counts = as(feature.counts, "sparseMatrix"), min.features = 0, min.cells = 0)
+        x[[from.assay]] <- CreateAssay5Object(counts = as(new.counts, "sparseMatrix"), min.features = 0, min.cells = 0)}
 
     return(x)}
 
@@ -114,15 +114,15 @@ return_genes <- function(x, from.assay, to.assay = "RNA"){
 #' @param x Seurat object
 #' @param bcr if TRUE, remove BCR-VDJ genes. Defaults to FALSE
 #' @param tcr if TRUE, remove TCR-VDJ genes. Defaults to FALSE
-#' @param orig.assay current assay name, defaults to "RNA"
+#' @param from.assay current assay name, defaults to "RNA"
 #' @export
-remove_vdj_genes <- function(x, bcr = T, tcr = T, orig.assay = "RNA"){
+remove_vdj_genes <- function(x, bcr = T, tcr = T, from.assay = "RNA"){
     if(bcr){
-        bcr.genes <- rownames(x[[orig.assay]])[which(str_detect(rownames(x[[orig.assay]]), bcr.string))]
-        x <- remove_genes(x, features = bcr.genes, orig.assay = orig.assay, new.assay = "BCR")}
+        bcr.genes <- rownames(x[[from.assay]])[which(str_detect(rownames(x[[from.assay]]), bcr.string))]
+        x <- remove_genes(x, features = bcr.genes, from.assay = from.assay, to.assay = "BCR")}
     if(tcr){
-        tcr.genes <- rownames(x[[orig.assay]])[which(str_detect(rownames(x[[orig.assay]]), tcr.string))]
-        x <- remove_genes(x, features = tcr.genes, orig.assay = orig.assay, new.assay = "TCR")}
+        tcr.genes <- rownames(x[[from.assay]])[which(str_detect(rownames(x[[from.assay]]), tcr.string))]
+        x <- remove_genes(x, features = tcr.genes, from.assay = from.assay, to.assay = "TCR")}
     return(x)
         }
         

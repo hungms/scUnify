@@ -16,9 +16,8 @@ remotes::install_github("hungms/scUnify", dependencies=FALSE)
 options(timeout = 500)
 cran <- c(
     "tidyverse", "ggrepel", "patchwork", "cowplot", "scales", "ggh4x",
-    "grid", "gridExtra", "viridis", "wesanderson", "RColorBrewer", "qs", 
-    "readxl", "writexl", "rstatix", "ggpubr", "Seurat", "harmony", "dsb", 
-    "enrichR")
+    "gridExtra", "viridis", "wesanderson", "RColorBrewer", "qs", 
+    "readxl", "writexl", "rstatix", "ggpubr", "Seurat", "harmony", "dsb")
 install.packages(cran)
 
 ### Install Bioconductor packages

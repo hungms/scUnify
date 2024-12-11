@@ -91,21 +91,25 @@ process_hto <- function(x, assay = "HTO"){
 #' @param denoise.counts denoise counts
 #' @param use.isotype.control use isotype controls
 #' @param isotype.control.name.vec isotype control name vec
+#' @param min.count minimum count required for each protein stained
 #' @return a list of seurat objects with DSB normalised "data" in ADT assay
 #' @export
-run_dsb <- function(x, dir, denoise.counts = T, use.isotype.control = F, isotype.control.name.vec = NULL){
+run_dsb <- function(x, dir, denoise.counts = T, use.isotype.control = F, isotype.control.name.vec = NULL, min.count = NULL){
     stopifnot(length(x) == length(dir))
     raw.dir <- gsub("/outs/.*", "/outs/multi/count/raw_feature_bc_matrix", dir)
 
     adt.cell <- Read10X(dir)[["Antibody Capture"]][rownames(x[["ADT"]]),]
     adt.raw <- Read10X(raw.dir)[["Antibody Capture"]][rownames(x[["ADT"]]),]
     
-    keep1 <- rownames(adt.cell)[which(apply(adt.cell, 1, max) > 10)]
-    keep2 <- rownames(adt.raw)[which(apply(adt.raw, 1, max) > 10)]
-    keep <- intersect(keep1, keep2)
-    
-    adt.cell <- adt.cell[keep,]
-    adt.raw <- adt.raw[keep, -c(which(colnames(adt.raw) %in% colnames(adt.cell)))]
+    if(length(min.count) > 0){
+        if(is.numeric(min.count)){
+            keep1 <- rownames(adt.cell)[which(apply(adt.cell, 1, max) > min.count)]
+            keep2 <- rownames(adt.raw)[which(apply(adt.raw, 1, max) > min.count)]
+            keep <- intersect(keep1, keep2)
+            adt.cell <- adt.cell[keep,]
+            adt.raw <- adt.raw[keep, -c(which(colnames(adt.raw) %in% colnames(adt.cell)))]}}
+
+    adt.raw <- adt.raw[, -c(which(colnames(adt.raw) %in% colnames(adt.cell)))]
     out = dsb::DSBNormalizeProtein(
             cell_protein_matrix = adt.cell, 
             empty_drop_matrix = adt.raw, 
@@ -291,7 +295,7 @@ calculate_cellcycle <- function(x, org = "human", remove_genes = F, assay = "RNA
     x <- CellCycleScoring(x, s.features = sgenes, g2m.features = g2mgenes, set.ident = F, assay = assay)
     
     if(remove_genes){
-        x <- remove_genes(x, features = c(sgenes, g2mgenes), orig.assay = assay, new.assay = "CC")}
+        x <- remove_genes(x, features = c(sgenes, g2mgenes), from.assay = assay, to.assay = "CC")}
     return(x)    
     }
 

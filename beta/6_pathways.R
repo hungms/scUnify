@@ -37,7 +37,7 @@ for(i in c("hs_gs", "mm_gs")){
 
 
 # seurat 1to1
-FindPathways <- function(x, outdir, org = "human", rank = "avg_log2FC"){
+find_gsea <- function(x, outdir, org = "human", rank = "avg_log2FC"){
 
     stopifnot(rank %in% c("avg_log2FC", "p_val_adj", "pxFC"))
 
@@ -64,81 +64,8 @@ FindPathways <- function(x, outdir, org = "human", rank = "avg_log2FC"){
     names(output) <- paste0("comparison_", names(gs))
     qsave(output, file = outdir)}
 
-# plot seurat 1to1
-PlotDotPlot <- function(x, collection, group1, group2, top_n = NULL, filter_signif = T, remove_gs_name = F, ...){
-
-    data <- x[which(str_detect(names(x), paste0("_", collection)))][[1]]@result
-    data$NES <- as.numeric(data$NES)
-    data$qvalue <- as.numeric(data$qvalue)
-
-    if(remove_gs_name == T){
-        data$ID <- sub("^[^_]*_", "", data$ID)}
-
-    if(length(top_n) > 0){
-        plot_pathways <- data %>%
-                    arrange(desc(NES^2)) %>%
-            mutate(direction = ifelse(NES > 0, "POS", "NEG")) %>%
-            group_by(direction) %>%
-            slice_min(n = top_n, order_by = qvalue, with_ties = F) %>%
-            .$ID
-
-        if(filter_signif){
-            plot_pathways <- data %>%
-                filter(qvalue < 0.05) %>%
-                arrange(desc(NES^2)) %>%
-                mutate(direction = ifelse(NES > 0, "POS", "NEG")) %>%
-                group_by(direction) %>%
-                slice_min(n = top_n, order_by = qvalue, with_ties = F) %>%
-                .$ID
-        }
-
-        data <- data %>%
-            filter(ID %in% plot_pathways)}
-
-    comparison <- paste0("Enriched in ", c(group2, group1))
-    plot <- data %>%
-        mutate(direction = factor(ifelse(NES < 0, comparison[1], comparison[2]), comparison)) %>%
-        mutate(psig = case_when(
-            qvalue < 0.001 ~ "***",
-            qvalue < 0.01 ~ "**",
-            qvalue < 0.05 ~ "*",
-            .default = "")) %>%
-        ggplot(aes(x = fct_reorder(ID, NES), y = NES, color = NES, size = -log10(qvalue))) +
-        geom_point(color = "black", aes(size = (-log10(qvalue))*1.1)) +
-        geom_point() +
-        geom_text(aes(label = psig), color = "black", hjust = 0.5, nudge_x = 0.5) +
-        xlab("Pathways") +
-        facet_wrap(~direction, scales = "free_x") +
-        theme_bw() +
-        scale_color_distiller(palette = "RdBu") +
-        scale_size(range = c(1, 6)) +
-        guides(
-            color = guide_colorbar(
-                title = "NES",
-                title.position = "top",
-                direction = "horizontal",
-                frame.colour = "black",
-                ticks.colour = "black",
-                order = 1),
-            size = guide_legend(
-                title = "-log10 (padj)",
-                direction = "horizontal",
-                order = 2,
-                override.aes = list(fill = "black"),
-                title.position = "top")) +
-        coord_flip() +
-        theme(
-            strip.background = element_blank(),
-            strip.text = element_text(face="bold", size=12),
-            panel.grid = element_blank(),
-            panel.border = element_rect(colour = "black", fill=NA, size=1)) +
-        scale_x_discrete(expand=c(0.05, 0.05)) +
-        scale_y_continuous(expand = expansion(mult = c(0.1, 0.1)))
-    return(plot)
-}
-
 # seurat 1toall
-FindAllPathways <- function(x, outdir, org = "human", rank = "avg_log2FC"){
+find_all_gsea <- function(x, outdir, org = "human", rank = "avg_log2FC"){
     stopifnot(rank %in% c("avg_log2FC", "p_val_adj", "diff_pct", "pxFC"))
     if(org == "human"){
         gs <- hs_gs}
@@ -173,151 +100,6 @@ FindAllPathways <- function(x, outdir, org = "human", rank = "avg_log2FC"){
 
     qsave(output, file = outdir)}
 
-
-# plot pathway heatmaps
-PlotAllHeatmap <- function(x, collection, top_n = NULL, only_pos = T, plot_qval = F, remove_gs_name = F, fill_na = F, keep_order = F, signif_col = "white",...){
-
-    x <- x[which(str_detect(names(x), paste0("_", collection)))]
-
-    if(keep_order){
-        colname_order <- gsub(paste0("_", collection), "", names(x))}
-
-    for(i in seq_along(x)){
-        x[[i]]@result$cluster <- gsub(paste0("_", collection), "", names(x)[i])
-        x[[i]] <- x[[i]]@result}
-
-    x <- bind_rows(x)
-
-    if(remove_gs_name == T){
-        x$ID <- sub("^[^_]*_", "", x$ID)}
-
-    if(length(top_n) > 0){
-        if(only_pos){
-            plot_pathways <- x %>%
-                group_by(cluster) %>%
-                filter(NES > 0) %>%
-		arrange(desc(NES)) %>%
-                slice_min(n = top_n, order_by = qvalue, with_ties = F) %>%
-                .$ID}
-        else{
-            plot_pathways <- x %>%
-                group_by(cluster) %>%
-		arrange(desc(NES^2)) %>%
-                slice_min(n = top_n, order_by = qvalue, with_ties = F) %>%
-                .$ID}
-
-        x <- x %>%
-            filter(ID %in% plot_pathways)}
-
-    nes <- x %>%
-        dplyr::select(cluster, ID, NES) %>%
-        arrange(cluster) %>%
-        mutate(cluster = as.factor(cluster), NES = as.numeric(NES)) %>%
-        complete(cluster, nesting(ID), fill = list(NES = NA)) %>%
-        pivot_wider(names_from = cluster, values_from = NES) %>%
-        column_to_rownames("ID")
-
-    qval <- x %>%
-        dplyr::select(cluster, ID, qvalue) %>%
-        arrange(cluster) %>%
-        mutate(cluster = as.factor(cluster), qvalue = as.numeric(qvalue)) %>%
-        complete(cluster, nesting(ID), fill = list(qvalue = 1)) %>%
-        pivot_wider(names_from = cluster, values_from = qvalue) %>%
-        column_to_rownames("ID")
-
-    if(fill_na == T){
-        nes[is.na(nes)] <- 0}
-
-    if(plot_qval == F){
-        qval[qval != 1] <- 1}
-
-    min <- round(min(nes, na.rm = TRUE))
-    max <- round(max(nes, na.rm = TRUE))
-    scale = max(c(-min, max))
-    col_fun = rev(brewer.pal(12,"RdBu"))
-
-    if(keep_order){
-        ht <- Heatmap(
-            nes,
-            border = TRUE,
-            col = col_fun,
-            na_col = "black",
-            border_gp = gpar(col = "black", lwd = 3),
-            rect_gp = gpar(col = "white", lwd = 1),
-            heatmap_legend_param = list(
-                title = "NES",
-                at = c(-scale, scale),
-                legend_direction = "vertical",
-                labels = c(paste0("-", scale), paste0(" ", scale)),
-                width = unit(10, "mm")),
-            show_heatmap_legend = T,
-            show_column_names = T,
-            column_names_side = "top",
-            column_title_side = "top",,
-            column_dend_reorder = F,
-            column_order = colname_order,
-            column_dend_side = "bottom",
-            show_row_names = T,
-            row_title = "Pathways",
-            row_dend_reorder = T,
-            row_dend_side = "right",
-            row_names_side = "left",
-            row_names_max_width = unit(30, "cm"),
-            column_title_gp = gpar(fontsize = 10,fontface="bold"),
-            column_names_gp = gpar(fontsize = 10,fontface="bold"),
-            row_title_gp = gpar(fontsize = 10),
-            row_names_gp = gpar(fontsize = 8),
-            cell_fun = function(j, i, x, y, w, h, fill) {
-                if(qval[i, j] < 0.001) {
-                    grid.text("***", x, y, gp = gpar(col = signif_col))
-                } else if(qval[i, j] < 0.01) {
-                    grid.text("**", x, y, gp = gpar(col = signif_col))
-                } else if(qval[i, j] < 0.05) {
-                    grid.text("*", x, y, gp = gpar(col = signif_col))
-                }},
-        ...)}
-
-    else{
-        ht <- Heatmap(
-            nes,
-            border = TRUE,
-            col = col_fun,
-            na_col = "black",
-            border_gp = gpar(col = "black", lwd = 3),
-            rect_gp = gpar(col = "white", lwd = 1),
-            heatmap_legend_param = list(
-                title = "NES",
-                at = c(-scale, scale),
-                legend_direction = "vertical",
-                labels = c(paste0("-", scale), paste0(" ", scale)),
-                width = unit(10, "mm")),
-            show_heatmap_legend = T,
-            show_column_names = T,
-            column_names_side = "top",
-            column_title_side = "top",,
-            column_dend_reorder = T,
-            column_dend_side = "bottom",
-            show_row_names = T,
-            row_title = "Pathways",
-            row_dend_reorder = T,
-            row_dend_side = "right",
-            row_names_side = "left",
-            row_names_max_width = unit(30, "cm"),
-            column_title_gp = gpar(fontsize = 10,fontface="bold"),
-            column_names_gp = gpar(fontsize = 10,fontface="bold"),
-            row_title_gp = gpar(fontsize = 10),
-            row_names_gp = gpar(fontsize = 8),
-            cell_fun = function(j, i, x, y, w, h, fill) {
-                if(qval[i, j] < 0.001) {
-                    grid.text("***", x, y, gp = gpar(col = signif_col))
-                } else if(qval[i, j] < 0.01) {
-                    grid.text("**", x, y, gp = gpar(col = signif_col))
-                } else if(qval[i, j] < 0.05) {
-                    grid.text("*", x, y, gp = gpar(col = signif_col))
-                }},
-        ...)}
-    return(ht)
-}
 
 
 # pathway to excel
@@ -361,7 +143,7 @@ pathways_to_excel <- function(x, diffexp = NULL, outdir){
 
 
 ###
-PlotAllHeatmap <- function(gsea, top_n = NULL, only_pos = T, only_signif = F, plot_qval = F, fill_na = F, keep_col_order = F, keep_row_order = F, signif_col = "white",...){
+plot_gsea_heatmap <- function(gsea, top_n = NULL, only_pos = T, only_signif = F, plot_qval = F, fill_na = F, keep_col_order = F, keep_row_order = F, signif_col = "white",...){
     
     if(is.data.frame(gsea)){
         stopifnot(c("cluster", "ID", "NES", "qvalue") %in% colnames(gsea))}
@@ -474,7 +256,7 @@ PlotAllHeatmap <- function(gsea, top_n = NULL, only_pos = T, only_signif = F, pl
 }
 
 
-PlotBarPlot <- function(data, group1, group2, top_n = NULL, only.signif = T){
+plot_gsea_bar <- function(data, group1, group2, top_n = NULL, only.signif = T){
 
     stopifnot(all(c("NES", "qvalue", "ID") %in% colnames(data)))
     data$NES <- as.numeric(data$NES)

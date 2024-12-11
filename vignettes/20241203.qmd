@@ -12,16 +12,65 @@ knitr:
 
 
 ## Load Data & Environments
+
+Load scUnify.
 ```{r}
-library(scUnify)
-data("pbmc_small")
-head(pbmc_small)
+suppressMessages({
+library(scUnify)})
 ```
 
+
+Use hcabm40k data as example.
+```{r}
+library(SeuratData)
+library(Azimuth)
+#InstallData("hcabm40k")
+data(hcabm40k)
+hcabm40k
+```
+
+```{r}
+hcabm40k <- UpdateSeuratObject(hcabm40k)
+```
 
 ## Quality Control
+Running "calculate_fractions()" will generate columns in the metadata beginning with "pct." for the fraction of reads for the following metrics:
+* mitochondrial (pct.mt)
+* ribosomal (pct.rb)
+* haemoglobin (pct.hb)
+* TCR (pct.tcr)
+* BCR (pct.bcr)
+* MHC (pct.mhc)
+
 ```{r}
-
-
+hcabm40k <- calculate_fractions(hcabm40k)
+hcabm40k@meta.data %>%
+  dplyr::select(starts_with("pct")) %>%
+  summary()
 ```
 
+To remove VDJ genes you can use "remove_vdj_genes()" to subset BCR and TCR genes into assays named "BCR" and "TCR"
+
+```{r}
+hcabm40k <- remove_vdj_genes(hcabm40k, bcr = T, tcr = T)
+hcabm40k
+```
+
+If you have other genes you would like to subset, you can use "remove_genes"
+```{r}
+isg <- rownames(hcabm40k[["RNA"]])
+isg <- isg[which(str_detect(isg, "^ISG[0-9]"))]
+hcabm40k <- remove_genes(hcabm40k, features = isg, orig.assay = "RNA", new.assay = "ISG")
+hcabm40k
+```
+
+If you have other genes you would like to subset, you can use "remove_genes"
+```{r}
+hcabm40k <- return_genes(hcabm40k, from.assay = "ISG", to.assay = "RNA")
+rownames(hcabm40k)[]
+```
+
+
+```{r}
+calculate_mad()
+```

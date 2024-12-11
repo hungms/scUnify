@@ -95,7 +95,7 @@ convert_mouse_to_human_seurat <- function(x, assay = "RNA", unique = T){
     return(x)
 }
 
-bcr.string <- "^I[Gg][HKLhkl][VDJCAEMGvdjcaemg]|^AC233755"
+bcr.string <- "^I[Gg][HKLhkl][VDJCAEMGLvdjcaemgl]|^AC233755"
 #' BCR string
 #'
 #' BCR string
