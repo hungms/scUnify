@@ -41,7 +41,6 @@ Depends:
 Remotes: chris-mcginnis-ucsf/DoubletFinder, wjawaid/enrichR, hungms/MuDataSeurat
 biocViews: 
     biomaRt,
-    celda,
     UCell,
     scDblFinder,
     ComplexHeatmap,
