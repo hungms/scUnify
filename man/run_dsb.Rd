@@ -9,7 +9,8 @@ run_dsb(
   dir,
   denoise.counts = T,
   use.isotype.control = F,
-  isotype.control.name.vec = NULL
+  isotype.control.name.vec = NULL,
+  min.count = NULL
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ run_dsb(
 \item{use.isotype.control}{use isotype controls}
 
 \item{isotype.control.name.vec}{isotype control name vec}
+
+\item{min.count}{minimum count required for each protein stained}
 }
 \value{
 a list of seurat objects with DSB normalised "data" in ADT assay

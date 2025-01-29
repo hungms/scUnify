@@ -4,16 +4,16 @@
 \alias{remove_genes}
 \title{remove_genes}
 \usage{
-remove_genes(x, features = NULL, orig.assay = "RNA", new.assay)
+remove_genes(x, features = NULL, from.assay = "RNA", to.assay)
 }
 \arguments{
 \item{x}{Seurat object}
 
 \item{features}{a vector genes/features to remove}
 
-\item{orig.assay}{current assay name, defaults to "RNA"}
+\item{from.assay}{current assay name, defaults to "RNA"}
 
-\item{new.assay}{new assay name to store removed genes}
+\item{to.assay}{new assay name to store removed genes}
 }
 \description{
 Remove genes from current assay to new assay

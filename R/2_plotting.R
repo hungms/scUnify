@@ -217,6 +217,8 @@ plot_dotplot <- function(
             theme(
                 axis.text.x = element_text(hjust = 0),
                 axis.text.x.top = element_text(vjust = 0.5),
+                strip.text.y = element_text(face = "bold", size = 10),
+                strip.background.x = element_blank(),
                 strip.placement = "outside")}
     else{
         columns <- c("order", "Group", "Split")
@@ -229,24 +231,43 @@ plot_dotplot <- function(
             scale_x_discrete(
                 breaks = expdf %>% distinct(order, Gene) %>% .$order,
                 labels = expdf %>% distinct(order, Gene) %>% .$Gene) +
-            theme(strip.placement = "outside")}
+            theme(
+                strip.text.x = element_text(face = "bold", size = 10),
+                strip.background.y = element_blank(),
+                strip.placement = "outside")} 
+
+    plot <- plot  +
+        theme(
+            legend.text = element_text(size = 8),         # Reduce text size
+            legend.title = element_text(size = 10, face = "bold"),      # Reduce title size
+            legend.spacing.x =unit(0, "cm"),
+            legend.spacing.y =unit(0, "cm")
+            #legend.key.size = unit(0.3, "cm")            # Reduce key size
+            )
 
     return(plot)
 }
 
-basicDotPlot <- function(df, x, y, fill, size, stroke_legend = F, palette){
+basicDotPlot <- function(df, x, y, fill, size, stroke_legend = F, palette, scale = T){
     if("signif" %in% colnames(df)){
         stroke <- "signif"
         stroke_legend <- guide_legend(
             direction = "vertical",
             order = 3,
+            keyheight = unit(0.3, "cm"),  # Scale down key height
+            keywidth = unit(0.3, "cm"),   # Scale down key width
             override.aes = list(fill = palette[6], size = 6),
             theme = theme(legend.text=element_text(size=10)),
-            title = "Significance",
+            title = "FDR of\nupregulated genes",
             title.position = "top")}
     else{
 	stroke <- NULL
         stroke_legend <- guide_none()}
+
+    if(scale){
+        colorbar_title <- "Scaled Expression"}
+    else{
+        colorbar_title <- "Average Expression"}
 
     # basic dotplot
     plot <- ggplot(df, aes_string(x = x, y = y)) +
@@ -254,12 +275,13 @@ basicDotPlot <- function(df, x, y, fill, size, stroke_legend = F, palette){
         scale_discrete_manual(aesthetics = "stroke", values = c(1.3, 0)) +
         scale_color_manual(values = c("black", "white")) +
         scale_fill_gradientn(colors = palette) +
-        scale_size_continuous("% detected", range = c(0,8), breaks = c(0, 33, 66), labels = c("0%", "33%", "66%"))  +
+        #scale_size_continuous("% detected", range = c(0,8), breaks = c(0, 33, 66), labels = c("0%", "33%", "66%"))  +
+        scale_size(range = c(0, 10), breaks = c(25, 50, 75), labels = c("25%", "50%", "75%")) +
         ylab("") +
         xlab("") +
         guides(
             fill = guide_colorbar(
-                title = "Average Expression",
+                title = colorbar_title,
                 title.position = "top",
                 direction = "horizontal",
                 frame.colour = "black",
@@ -274,7 +296,7 @@ basicDotPlot <- function(df, x, y, fill, size, stroke_legend = F, palette){
                 title.position = "top"),
             stroke = stroke_legend) +
         theme_border() +
-        facet_aes() +
+        #facet_aes() +
         theme(
             axis.text.x = element_text(size=14, color="black"),
             axis.text.y = element_text(size=12, color="black"))
@@ -339,9 +361,9 @@ annotate_diffexp <- function(expdf, diffexp, split.by = NULL){
     diffexp <- diffexp %>%
         mutate(
             signif = case_when(
-                avg_log2FC > 0 & p_val_adj < 0.05 & pct.1 > 0.1 ~ "p < 0.05",
+                avg_log2FC > 0 & p_val_adj < 0.05 & pct.1 > 0.1 ~ "< 0.05",
                 .default = "ns"),
-            signif = factor(signif, c("p < 0.05", "ns")),
+            signif = factor(signif, c("< 0.05", "ns")),
             Gene = gene,
             Group = cluster)
 
@@ -360,7 +382,7 @@ annotate_diffexp <- function(expdf, diffexp, split.by = NULL){
     
     return(expdf)
     }
-
+    
 #' plot_feature
 #'
 #' Plot FeaturePlot from Seurat object

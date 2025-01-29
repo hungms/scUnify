@@ -4,7 +4,7 @@
 \alias{remove_vdj_genes}
 \title{remove_vdj_genes}
 \usage{
-remove_vdj_genes(x, bcr = T, tcr = T, orig.assay = "RNA")
+remove_vdj_genes(x, bcr = T, tcr = T, from.assay = "RNA")
 }
 \arguments{
 \item{x}{Seurat object}
@@ -13,7 +13,7 @@ remove_vdj_genes(x, bcr = T, tcr = T, orig.assay = "RNA")
 
 \item{tcr}{if TRUE, remove TCR-VDJ genes. Defaults to FALSE}
 
-\item{orig.assay}{current assay name, defaults to "RNA"}
+\item{from.assay}{current assay name, defaults to "RNA"}
 }
 \description{
 Remove VDJ genes from an assay
